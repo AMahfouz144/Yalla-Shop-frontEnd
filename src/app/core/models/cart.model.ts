@@ -1,14 +1,22 @@
-export interface ICart {
-  items: ICartItem[];
+export interface CartItem {
+  id: string;
+  productId: string;
+  productName: string;
+  productImageUrl: string;
+  unitPrice: number;
+  quantity: number;
   totalPrice: number;
-  totalItems: number;
+  isInStock: boolean;
 }
 
-export interface ICartItem {
-  product: string;        // product ID
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  stock: number;
+export interface CartSummary {
+  id: string;
+  userId: string;
+  items: CartItem[];
+  itemsCount: number;
+  subTotal: number;
+  shippingCost: number;
+  discount: number;
+  total: number;
+  promoCodeApplied?: string;
 }
