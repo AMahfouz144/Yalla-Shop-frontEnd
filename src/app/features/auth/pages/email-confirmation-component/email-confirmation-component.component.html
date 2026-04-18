@@ -1,0 +1,48 @@
+<div class="bg-background text-on-surface font-body min-h-[calc(100vh-64px)] flex items-center justify-center p-4">
+    <div class="bg-surface-container-lowest max-w-md w-full rounded-2xl p-8 md:p-10 shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)] text-center relative overflow-hidden text-on-surface">
+        
+        <!-- Loading State -->
+        <div *ngIf="!message" class="flex flex-col items-center gap-6 animate-pulse">
+            <span class="material-symbols-outlined animate-spin text-primary text-[64px]">progress_activity</span>
+            <div>
+                <h2 class="font-headline text-2xl font-bold mb-2 tracking-tight">Confirming your email...</h2>
+                <p class="text-on-surface-variant text-sm">Please wait a moment while we securely verify your request.</p>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div *ngIf="message && success" class="flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div class="w-24 h-24 bg-[#eaf7ee] rounded-full flex items-center justify-center mb-2 shadow-inner border border-[#b2e5c0]">
+                <span class="material-symbols-outlined text-[#22c55e] text-[64px]">check_circle</span>
+            </div>
+            <div>
+                <h2 class="font-headline text-3xl font-extrabold mb-3 tracking-tight">Email Confirmed!</h2>
+                <p class="text-on-surface-variant text-sm leading-relaxed max-w-sm mx-auto">
+                    {{ message }} You can now actively login to <span class="font-bold text-on-surface">YallaShop</span> and start curating your world.
+                </p>
+            </div>
+            <a routerLink="/auth/login" class="mt-4 w-full flex justify-center items-center gap-2 py-3.5 px-8 border border-transparent rounded-DEFAULT shadow-sm text-sm font-semibold text-white bg-gradient-to-br from-primary to-primary-container hover:shadow-md hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-300">
+                <span>Go to Login</span>
+                <span class="material-symbols-outlined text-sm">arrow_forward</span>
+            </a>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="message && !success" class="flex flex-col items-center gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+             <div class="w-24 h-24 bg-error-container rounded-full flex items-center justify-center mb-2 shadow-inner border border-error/20">
+                <span class="material-symbols-outlined text-error text-[64px]">error</span>
+            </div>
+            <div>
+                <h2 class="font-headline text-3xl font-extrabold mb-3 tracking-tight">Confirmation Failed</h2>
+                <p class="text-on-error-container text-sm font-medium mb-1">{{ message }}</p>
+                <p class="text-on-surface-variant text-sm leading-relaxed max-w-sm mx-auto">
+                    We couldn't verify your email address. The link may be invalid, has already been used, or has expired.
+                </p>
+            </div>
+             <a routerLink="/auth/register" class="mt-4 w-full flex justify-center items-center gap-2 py-3.5 px-8 border-2 border-outline-variant/30 rounded-DEFAULT text-sm font-semibold text-on-surface hover:bg-surface-container transition-all duration-300">
+                <span class="material-symbols-outlined text-sm">replay</span>
+                <span>Back to Registration</span>
+            </a>
+        </div>
+    </div>
+</div>
