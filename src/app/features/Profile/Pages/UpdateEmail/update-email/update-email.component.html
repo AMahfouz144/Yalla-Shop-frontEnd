@@ -1,0 +1,71 @@
+<div class="container mx-auto px-4 py-8 max-w-6xl mt-20">
+  <div class="mb-8 pl-4">
+    <h1 class="text-3xl font-headline font-bold text-gray-900">Email Settings</h1>
+    <p class="text-gray-500 mt-1">Update the email address linked to your account.</p>
+  </div>
+
+  <div class="flex flex-col md:flex-row gap-8">
+    <aside class="w-full md:w-64 shrink-0">
+      <nav class="flex flex-col gap-2">
+        <a routerLink="/profile" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium">
+          <span class="material-symbols-outlined font-normal">person</span>
+          Profile Information
+        </a>
+        <a routerLink="/update-email" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-orange-50 text-orange-600 font-medium transition-colors">
+          <span class="material-symbols-outlined font-normal">mail</span>
+          Update Email
+        </a>
+        <a routerLink="/change-password" class="flex items-center gap-3 px-4 py-3 rounded-lg text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium">
+          <span class="material-symbols-outlined font-normal">lock</span>
+          Change Password
+        </a>
+      </nav>
+    </aside>
+
+    <main class="flex-1">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="p-6 md:p-8">
+          <h2 class="text-xl font-headline font-semibold text-gray-900 mb-6">Update Email</h2>
+
+          <div *ngIf="submitSuccess" class="mb-6 p-4 rounded-xl bg-green-50 text-green-700 border border-green-200 flex items-center gap-3">
+            <span class="material-symbols-outlined">check_circle</span>
+            {{ submitSuccess }}
+          </div>
+
+          <div *ngIf="submitError" class="mb-6 p-4 rounded-xl bg-red-50 text-red-700 border border-red-200 flex items-center gap-3">
+            <span class="material-symbols-outlined">error</span>
+            {{ submitError }}
+          </div>
+
+          <form [formGroup]="emailForm" (ngSubmit)="onSubmit()" class="space-y-6 max-w-lg">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">New Email Address</label>
+              <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400 material-symbols-outlined text-[20px]">alternate_email</span>
+                <input
+                  type="email"
+                  formControlName="newEmail"
+                  class="w-full pl-11 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all"
+                  placeholder="example@email.com">
+              </div>
+
+              <div *ngIf="emailForm.get('newEmail')?.invalid && emailForm.get('newEmail')?.touched" class="text-red-500 text-xs mt-1">
+                <div *ngIf="emailForm.get('newEmail')?.errors?.['required']">Email is required.</div>
+                <div *ngIf="emailForm.get('newEmail')?.errors?.['email']">Please enter a valid email address.</div>
+              </div>
+            </div>
+
+            <div class="pt-4 flex justify-start">
+              <button type="submit" [disabled]="isSubmitting || emailForm.invalid"
+                class="px-6 py-2.5 rounded-lg bg-orange-600 text-white font-medium hover:bg-orange-700 focus:ring-4 focus:ring-orange-500/30 transition-all disabled:opacity-50 flex items-center gap-2 shadow-sm shadow-orange-600/20">
+                <span *ngIf="isSubmitting" class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                <span *ngIf="!isSubmitting">Update Email</span>
+                <span *ngIf="isSubmitting">Updating...</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
