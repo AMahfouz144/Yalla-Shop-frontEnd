@@ -1,0 +1,151 @@
+<article class="rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+    <div class="max-w-2xl">
+      <h2 class="font-headline text-2xl font-bold text-slate-900">{{ data.title }}</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">{{ data.description }}</p>
+    </div>
+
+    <button
+      *ngIf="data.primaryActionLabel"
+      type="button"
+      class="inline-flex items-center justify-center gap-2 rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-lg transition hover:bg-blue-700"
+      (click)="primaryAction.emit()"
+    >
+      <span class="material-symbols-outlined text-[20px]">{{ data.primaryActionIcon }}</span>
+      {{ data.primaryActionLabel }}
+    </button>
+  </div>
+
+  <div class="mt-6 overflow-hidden rounded-[24px] border border-slate-200">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th
+              *ngFor="let column of data.columns"
+              class="px-5 py-4 text-sm font-semibold text-slate-500"
+              [ngClass]="alignmentClass(column)"
+            >
+              <button
+                *ngIf="column.sortable; else plainHeader"
+                type="button"
+                class="inline-flex items-center gap-1"
+                [ngClass]="column.align === 'right' ? 'ml-auto' : ''"
+                (click)="onSort(column)"
+              >
+                {{ column.label }}
+                <span class="material-symbols-outlined text-[18px]">{{ sortIcon(column) }}</span>
+              </button>
+
+              <ng-template #plainHeader>{{ column.label }}</ng-template>
+            </th>
+          </tr>
+        </thead>
+
+        <tbody *ngIf="visibleRows.length; else emptyState" class="divide-y divide-slate-100 bg-white">
+          <tr *ngFor="let row of visibleRows" class="align-top">
+            <td
+              *ngFor="let column of data.columns"
+              class="px-5 py-4 text-sm text-slate-700"
+              [ngClass]="alignmentClass(column)"
+              [ngSwitch]="column.type"
+            >
+              <ng-container *ngSwitchCase="'product'">
+                <div class="flex items-center gap-3">
+                  <img [src]="asProduct(row[column.key]).imageUrl" [alt]="asProduct(row[column.key]).title" class="h-12 w-12 rounded-2xl object-cover" />
+                  <div>
+                    <p class="font-semibold text-slate-900">{{ asProduct(row[column.key]).title }}</p>
+                    <p *ngIf="asProduct(row[column.key]).subtitle" class="text-xs text-slate-500">
+                      {{ asProduct(row[column.key]).subtitle }}
+                    </p>
+                  </div>
+                </div>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'currency'">
+                <span class="font-semibold text-slate-900">{{ asNumber(row[column.key]) | currency:'USD':'symbol':'1.0-0' }}</span>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'status'">
+                <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="statusClasses(asStatus(row[column.key]))">
+                  {{ asStatus(row[column.key]).label }}
+                </span>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'stock'">
+                <div class="inline-flex flex-col items-start gap-1" [ngClass]="column.align === 'right' ? 'items-end' : ''">
+                  <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="statusClasses(asStock(row[column.key]))">
+                    {{ asStock(row[column.key]).label }}
+                  </span>
+                  <span class="text-xs text-slate-500">{{ asStock(row[column.key]).value }} units</span>
+                </div>
+              </ng-container>
+
+              <ng-container *ngSwitchCase="'actions'">
+                <div class="flex gap-2" [ngClass]="column.align === 'right' ? 'justify-end' : ''">
+                  <button
+                    *ngFor="let action of asActions(row[column.key])"
+                    type="button"
+                    class="rounded-xl p-2 transition"
+                    [ngClass]="actionClasses(action)"
+                    [attr.aria-label]="action.label"
+                    (click)="emitRowAction(action, row)"
+                  >
+                    <span class="material-symbols-outlined text-[19px]">{{ action.icon }}</span>
+                  </button>
+                </div>
+              </ng-container>
+
+              <ng-container *ngSwitchDefault>
+                {{ row[column.key] }}
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <ng-template #emptyState>
+        <div class="px-6 py-12 text-center text-sm text-slate-500">
+          {{ data.emptyState || 'No data available in this mock table yet.' }}
+        </div>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <p class="text-sm text-slate-500">
+      Showing {{ visibleRows.length }} of {{ data.rows.length }} rows
+    </p>
+
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="currentPage === 1"
+        (click)="onSelectPage(currentPage - 1)"
+      >
+        Previous
+      </button>
+
+      <button
+        *ngFor="let page of pageNumbers"
+        type="button"
+        class="h-10 w-10 rounded-xl text-sm font-semibold transition"
+        [ngClass]="page === currentPage ? 'bg-blue-600 text-white shadow-lg' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:text-blue-700 hover:ring-blue-200'"
+        (click)="onSelectPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        type="button"
+        class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-blue-200 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-40"
+        [disabled]="currentPage === totalPages"
+        (click)="onSelectPage(currentPage + 1)"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+</article>
+

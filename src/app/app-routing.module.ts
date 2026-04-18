@@ -16,25 +16,35 @@ const routes: Routes = [
       import('./features/auth/auth.module').then(m => m.AuthModule)
   },
 
+  // Unified dashboard feature module
+  {
+    path: 'dashboard',
+    loadChildren: () =>
+      import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+  },
+
+  // Legacy role entry points route into the unified dashboard module
+  {
+    path: 'admin',
+    redirectTo: 'dashboard/admin/overview',
+    pathMatch: 'full'
+  },
+  {
+    path: 'seller',
+    redirectTo: 'dashboard/seller/overview',
+    pathMatch: 'full'
+  },
+  {
+    path: 'marketing',
+    redirectTo: 'dashboard/marketing/overview',
+    pathMatch: 'full'
+  },
+
   // Customer-facing pages (home, products, cart, etc.)
   {
     path: '',
     loadChildren: () =>
       import('./features/customer/customer.module').then(m => m.CustomerModule)
-  },
-
-  // Seller dashboard
-  {
-    path: 'seller',
-    loadChildren: () =>
-      import('./features/seller/seller.module').then(m => m.SellerModule)
-  },
-
-  // Admin panel
-  {
-    path: 'admin',
-    loadChildren: () =>
-      import('./features/admin/admin.module').then(m => m.AdminModule)
   },
 
   // Wildcard — redirect to home

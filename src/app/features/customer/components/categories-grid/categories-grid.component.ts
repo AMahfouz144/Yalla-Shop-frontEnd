@@ -1,3 +1,4 @@
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 
 @Component({
@@ -6,5 +7,20 @@ import { Component } from '@angular/core';
   styleUrl: './categories-grid.component.css'
 })
 export class CategoriesGridComponent {
-
+ constructor(private http: HttpClient) { 
+   this.justTest()
+ }
+  onInit () {
+    this.justTest()
+  }
+ justTest () {
+    this.http
+      .post('https://yallashop-api.runasp.net/api/Auth/login', {
+        userName: 'system@admin.com',
+        password: 'P@ssw0rd'
+      })
+      .subscribe(data => {
+        console.log("Login Response:", data)
+      })
+  }
 }

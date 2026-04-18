@@ -1,0 +1,10 @@
+:host {
+  display: block;
+}
+
+.dashboard-shell {
+  background-image:
+    radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 32%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, #f8fafc 100%);
+}
+
