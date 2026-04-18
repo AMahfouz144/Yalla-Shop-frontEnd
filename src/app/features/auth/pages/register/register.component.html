@@ -1,1 +1,222 @@
-<p>register works!</p>
+<div class="bg-background text-on-surface font-body min-h-[calc(100vh-64px)] flex items-center justify-center p-4 md:p-8">
+    <div class="w-full max-w-screen-2xl mx-auto flex flex-col md:flex-row bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)] relative z-10">
+        <!-- Left Side: Engaging Illustration / Branding -->
+        <div class="hidden md:flex md:w-1/2 relative bg-surface-container-low p-12 flex-col justify-between items-start overflow-hidden">
+            <!-- Decorative Background Element -->
+            <div class="absolute inset-0 z-0 bg-primary">
+                <img alt="E-commerce illustration" class="w-full h-full object-cover opacity-60 mix-blend-overlay object-center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB9LF07LYc89LUiRI-AvyboRMDCkDlZ5Ef1VWYLaMoWnkBQ0CX_lZDVMsVYjgg1iUnafIe7SJonrbvXopbbXtXbfqTZ9TWJx-H-xBWMTqiqAzW5cAHj9TXLCTean-sD35ZgSKeHURCrbQrV3dJ6RCMJ27f7qN7YR6CPmolNUK9vBAmjviPLknzXcujJq_nVKIigUz0KCStBDi0yciz9MyPC8qcolMtC4zK7XmYWXngYtwYPPylKGAfi79zC84UDF5soK0-quhKvbCM"/>
+                <div class="absolute inset-0 bg-gradient-to-tr from-primary/90 to-primary-container/40 mix-blend-multiply"></div>
+            </div>
+            <div class="relative z-10">
+                <h1 class="font-headline text-3xl font-bold tracking-tight text-white mb-2">YallaShop</h1>
+                <p class="text-white/80 font-body text-sm">The Digital Atelier</p>
+            </div>
+            <div class="relative z-10 max-w-md">
+                <h2 class="font-headline text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight mb-6" style="letter-spacing: -0.02em;">
+                    Curate your world.
+                </h2>
+                <p class="text-white/90 font-body text-lg leading-relaxed">
+                    Join the premier platform where exceptional creators and discerning buyers meet in a curated space of unparalleled quality.
+                </p>
+            </div>
+            <div class="relative z-10 flex items-center gap-4 text-white/80 text-sm">
+                <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+                <span>Trusted by over 10,000 independent sellers globally.</span>
+            </div>
+        </div>
+        
+        <!-- Right Side: Sign-Up Form -->
+        <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center bg-surface-container-lowest">
+            <div class="max-w-md w-full mx-auto">
+                <div class="mb-10 text-left">
+                    <h2 class="font-headline text-3xl font-bold text-on-surface mb-2 tracking-tight">Create an account</h2>
+                    <p class="text-on-surface-variant font-body text-sm">Join YallaShop today. Enter your details below.</p>
+                </div>
+
+                <div *ngIf="submitSuccess" class="mb-6 rounded-md bg-[#eaf7ee] border border-[#b2e5c0] p-4 text-[#14532d] shadow-sm">
+                    <div class="flex items-start gap-3">
+                        <span class="material-symbols-outlined text-[#22c55e] mt-0.5">check_circle</span>
+                        <div class="text-sm">
+                            <p class="font-medium">{{ submitSuccess }}</p>
+                            <p class="mt-1 opacity-90">We sent a message to your email please confirm your email so you can login to YallaShop</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="submitError" class="mb-6 rounded-md bg-error-container p-4 text-on-error-container shadow-sm border border-error/20">
+                    <div class="flex items-center gap-3">
+                        <span class="material-symbols-outlined text-error">error</span>
+                        <p class="text-sm font-medium">{{ submitError }}</p>
+                    </div>
+                </div>
+
+                <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="space-y-6">
+                    <!-- Account Role Selection -->
+                    <div class="space-y-3">
+                        <label class="block text-sm font-semibold text-on-surface font-label uppercase tracking-wider" style="letter-spacing: 0.05em;">Account Type</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Customer Option -->
+                            <label class="relative flex cursor-pointer rounded-lg bg-surface-container-low p-4 hover:bg-surface-container transition-colors duration-200 border-2"
+                                   [ngClass]="{'border-primary shadow-[0_8px_32px_-4px_rgba(44,47,49,0.06)] bg-surface-container-lowest': !isSeller, 'border-transparent': isSeller}">
+                                <input type="radio" name="account_role" value="customer" formControlName="account_role" class="peer sr-only"/>
+                                <div class="flex items-start gap-3 w-full">
+                                    <span class="material-symbols-outlined mt-0.5" [ngClass]="{'text-primary': !isSeller, 'text-on-surface-variant': isSeller}">shopping_bag</span>
+                                    <div>
+                                        <p class="font-semibold text-on-surface text-sm">Customer</p>
+                                        <p class="text-xs text-on-surface-variant mt-1">Discover and buy</p>
+                                    </div>
+                                    <span class="material-symbols-outlined absolute right-4 top-4 text-primary transition-opacity" [ngClass]="{'opacity-100': !isSeller, 'opacity-0': isSeller}">check_circle</span>
+                                </div>
+                            </label>
+                            <!-- Seller Option -->
+                            <label class="relative flex cursor-pointer rounded-lg bg-surface-container-low p-4 hover:bg-surface-container transition-colors duration-200 border-2"
+                                   [ngClass]="{'border-primary shadow-[0_8px_32px_-4px_rgba(44,47,49,0.06)] bg-surface-container-lowest': isSeller, 'border-transparent': !isSeller}">
+                                <input type="radio" name="account_role" value="seller" formControlName="account_role" class="peer sr-only"/>
+                                <div class="flex items-start gap-3 w-full">
+                                    <span class="material-symbols-outlined mt-0.5" [ngClass]="{'text-primary': isSeller, 'text-on-surface-variant': !isSeller}">storefront</span>
+                                    <div>
+                                        <p class="font-semibold text-on-surface text-sm">Seller</p>
+                                        <p class="text-xs text-on-surface-variant mt-1">Set up a shop</p>
+                                    </div>
+                                    <span class="material-symbols-outlined absolute right-4 top-4 text-primary transition-opacity" [ngClass]="{'opacity-100': isSeller, 'opacity-0': !isSeller}">check_circle</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Input Fields -->
+                    <div class="space-y-5">
+                        <div class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="fullName" class="sr-only">Full Name</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">person</span>
+                                </div>
+                                <input type="text" id="fullName" formControlName="fullName" placeholder="Full Name" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none"/>
+                            </div>
+                            <div *ngIf="registerForm.get('fullName')?.touched && registerForm.get('fullName')?.invalid" class="text-error text-xs mt-1">
+                                <span *ngIf="registerForm.get('fullName')?.errors?.['required']">Full Name is required</span>
+                                <span *ngIf="registerForm.get('fullName')?.errors?.['maxlength']">Max length is 50 characters</span>
+                            </div>
+                        </div>
+
+                        <div class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="email" class="sr-only">Email Address</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">mail</span>
+                                </div>
+                                <input type="email" id="email" formControlName="email" placeholder="Email Address" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none"/>
+                            </div>
+                            <div *ngIf="registerForm.get('email')?.touched && registerForm.get('email')?.invalid" class="text-error text-xs mt-1">
+                                <span *ngIf="registerForm.get('email')?.errors?.['required']">Email is required</span>
+                                <span *ngIf="registerForm.get('email')?.errors?.['email']">Must be a valid email</span>
+                            </div>
+                        </div>
+
+                        <div class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="password" class="sr-only">Password</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">lock</span>
+                                </div>
+                                <input type="password" id="password" formControlName="password" placeholder="Password" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 pr-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none" #passInput/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <button type="button" class="text-on-surface-variant hover:text-on-surface focus:outline-none" (click)="passInput.type = passInput.type === 'password' ? 'text' : 'password'">
+                                        <span class="material-symbols-outlined text-sm">{{ passInput.type === 'password' ? 'visibility_off' : 'visibility' }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div *ngIf="registerForm.get('password')?.touched && registerForm.get('password')?.invalid" class="text-error text-xs mt-1">
+                                <div *ngIf="registerForm.get('password')?.errors?.['required']">Password is required</div>
+                                <div *ngIf="registerForm.get('password')?.errors?.['minlength'] || registerForm.get('password')?.errors?.['maxlength']">Must be 7-20 characters</div>
+                                <div *ngIf="registerForm.get('password')?.errors?.['pswdCriteria']">Must have uppercase, lowercase, and non-alphabetic character</div>
+                            </div>
+                        </div>
+
+                        <div class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="confirmPassword" class="sr-only">Confirm Password</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">lock_reset</span>
+                                </div>
+                                <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirm Password" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 pr-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none" #confirmPassInput/>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    <button type="button" class="text-on-surface-variant hover:text-on-surface focus:outline-none" (click)="confirmPassInput.type = confirmPassInput.type === 'password' ? 'text' : 'password'">
+                                        <span class="material-symbols-outlined text-sm">{{ confirmPassInput.type === 'password' ? 'visibility_off' : 'visibility' }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div *ngIf="registerForm.get('confirmPassword')?.touched && registerForm.get('confirmPassword')?.invalid" class="text-error text-xs mt-1">
+                                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['required']">Please confirm your password</div>
+                                <div *ngIf="registerForm.get('confirmPassword')?.errors?.['matchPassword']">Passwords do not match</div>
+                            </div>
+                        </div>
+
+                        <div class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="address" class="sr-only">Address</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">location_on</span>
+                                </div>
+                                <input type="text" id="address" formControlName="address" placeholder="Address (Optional)" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none"/>
+                            </div>
+                            <div *ngIf="registerForm.get('address')?.touched && registerForm.get('address')?.invalid" class="text-error text-xs mt-1">
+                                <span *ngIf="registerForm.get('address')?.errors?.['maxlength']">Max length is 50 characters</span>
+                            </div>
+                        </div>
+
+                        <div *ngIf="isSeller" class="ghost-border rounded-DEFAULT transition-all duration-200 bg-surface-container-lowest">
+                            <label for="storeName" class="sr-only">Store Name</label>
+                            <div class="relative rounded-DEFAULT border border-outline-variant/20 bg-surface-container-lowest focus-within:border-primary/50">
+                                <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                                    <span class="material-symbols-outlined text-on-surface-variant text-sm">store</span>
+                                </div>
+                                <input type="text" id="storeName" formControlName="storeName" placeholder="Store Name (Optional)" 
+                                    class="block w-full rounded-DEFAULT border-0 py-3 pl-10 text-on-surface ring-0 placeholder:text-on-surface-variant/50 focus:ring-0 sm:text-sm bg-transparent outline-none"/>
+                            </div>
+                            <div *ngIf="registerForm.get('storeName')?.touched && registerForm.get('storeName')?.invalid" class="text-error text-xs mt-1">
+                                <span *ngIf="registerForm.get('storeName')?.errors?.['maxlength']">Max length is 50 characters</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terms & Conditions -->
+                    <div>
+                        <div class="flex items-center">
+                            <input type="checkbox" id="terms" formControlName="terms" 
+                                class="h-4 w-4 rounded-sm border-outline-variant/20 text-primary focus:ring-primary bg-surface-container-lowest cursor-pointer"/>
+                            <label for="terms" class="ml-3 block text-sm text-on-surface-variant cursor-pointer">
+                                I agree to the <a href="#" class="font-medium text-primary hover:text-primary-container transition-colors">Terms of Service</a> and <a href="#" class="font-medium text-primary hover:text-primary-container transition-colors">Privacy Policy</a>
+                            </label>
+                        </div>
+                        <div *ngIf="registerForm.get('terms')?.touched && registerForm.get('terms')?.invalid" class="text-error text-xs mt-1">
+                            You must accept the terms and conditions
+                        </div>
+                    </div>
+
+                    <!-- Submit Action -->
+                    <div class="pt-2 flex justify-end">
+                        <button type="submit" [disabled]="isSubmitting"
+                            class="w-full sm:w-auto flex justify-center items-center py-3 px-8 border border-transparent rounded-DEFAULT shadow-sm text-sm font-semibold text-white bg-gradient-to-br from-primary to-primary-container hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <span *ngIf="isSubmitting" class="material-symbols-outlined animate-spin mr-2">progress_activity</span>
+                            {{ isSubmitting ? 'Creating...' : 'Create Account' }}
+                        </button>
+                    </div>
+                </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-on-surface-variant">
+                        Already have an account? 
+                        <a routerLink="/auth/login" class="font-medium text-primary hover:text-primary-container transition-colors">Sign in</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

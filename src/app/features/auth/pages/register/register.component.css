@@ -1,0 +1,6 @@
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.ghost-border:focus-within {
+  box-shadow: 0 0 0 2px rgba(110, 159, 255, 0.5), 0 8px 32px -4px rgba(44, 47, 49, 0.06);
+}
