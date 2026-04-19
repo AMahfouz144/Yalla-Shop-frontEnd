@@ -2,7 +2,7 @@
  * Local development backend.
  * To switch back to production, comment this out and uncomment the line below.
  */
-export const API_HOST = 'http://localhost:33467';
+export const API_HOST = 'https://yallashop-api.runasp.net';
 
 // Production (deployed — uncomment when deploying):
 // export const API_HOST = 'https://yallashop-api.runasp.net';
