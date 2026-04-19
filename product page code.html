@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atelier Commerce - Product Catalog</title>
+<!-- Google Fonts: Display (Plus Jakarta Sans) & Body/UI (Inter) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration (Design System Tokens) -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary": "#ffeefb",
+                        "tertiary": "#893c92",
+                        "secondary-container": "#dae2fd",
+                        "inverse-on-surface": "#9a9d9f",
+                        "tertiary-dim": "#7b2f85",
+                        "tertiary-fixed": "#f199f7",
+                        "on-secondary-fixed": "#373f54",
+                        "surface-variant": "#d9dde0",
+                        "on-surface": "#2c2f31",
+                        "on-background": "#2c2f31",
+                        "secondary-fixed": "#dae2fd",
+                        "surface-container": "#e5e9eb",
+                        "on-error": "#ffefee",
+                        "outline-variant": "#abadaf",
+                        "primary-dim": "#004ca6",
+                        "on-primary-fixed-variant": "#002a62",
+                        "error": "#b31b25",
+                        "surface-tint": "#0057bd",
+                        "surface-container-high": "#dfe3e6",
+                        "error-dim": "#9f0519",
+                        "surface-dim": "#d0d5d8",
+                        "surface-container-highest": "#d9dde0",
+                        "inverse-surface": "#0b0f10",
+                        "secondary-fixed-dim": "#ccd4ee",
+                        "surface": "#f5f7f9",
+                        "on-secondary-container": "#4a5167",
+                        "on-secondary": "#f0f2ff",
+                        "on-primary-container": "#002150",
+                        "secondary-dim": "#484f65",
+                        "primary": "#0057bd",
+                        "outline": "#747779",
+                        "tertiary-fixed-dim": "#e28ce9",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#4d8eff",
+                        "on-error-container": "#570008",
+                        "on-primary": "#f0f2ff",
+                        "secondary": "#535b71",
+                        "on-tertiary-fixed-variant": "#681c73",
+                        "tertiary-container": "#f199f7",
+                        "primary-fixed": "#6e9fff",
+                        "on-surface-variant": "#595c5e",
+                        "primary-fixed-dim": "#5391ff",
+                        "on-secondary-fixed-variant": "#535b71",
+                        "background": "#f5f7f9",
+                        "surface-bright": "#f5f7f9",
+                        "error-container": "#fb5151",
+                        "on-primary-fixed": "#000000",
+                        "on-tertiary-fixed": "#3e0047",
+                        "surface-container-low": "#eef1f3",
+                        "on-tertiary-container": "#5e106a",
+                        "primary-container": "#6e9fff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Hide scrollbar for category nav */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen flex flex-col">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-[#f5f7f9]/80 dark:bg-slate-900/80 backdrop-blur-xl font-['Plus_Jakarta_Sans'] tracking-tight shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)] bg-[#eef1f3] dark:bg-slate-800">
+<div class="flex justify-between items-center px-8 py-4 w-full max-w-full">
+<!-- Left: Brand & Search Logic -->
+<div class="flex items-center gap-8">
+<div class="text-xl font-bold tracking-tighter text-[#2c2f31] dark:text-white">
+                    Atelier Commerce
+                </div>
+<!-- Search bar placeholder for 'on_left' -->
+<div class="hidden md:flex items-center bg-surface-container-lowest rounded-full px-4 py-2 shadow-sm border border-outline-variant/20 focus-within:border-primary-fixed focus-within:shadow-[0_4px_32px_-4px_rgba(44,47,49,0.06)] transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm font-label text-on-surface w-48 placeholder:text-on-surface-variant/60" placeholder="Search catalog..." type="text"/>
+</div>
+</div>
+<!-- Center: Navigation -->
+<nav class="hidden md:flex items-center gap-8">
+<!-- Active Item -->
+<a class="text-[#0057bd] dark:text-[#6e9fff] border-b-2 border-[#0057bd] pb-1 scale-95 active:scale-90 transition-transform font-semibold text-sm" href="#">Shop</a>
+<!-- Inactive Items -->
+<a class="text-[#2c2f31] dark:text-slate-400 hover:bg-[#dfe3e6] dark:hover:bg-slate-800 transition-colors px-3 py-1.5 rounded text-sm scale-95 active:scale-90" href="#">Categories</a>
+<a class="text-[#2c2f31] dark:text-slate-400 hover:bg-[#dfe3e6] dark:hover:bg-slate-800 transition-colors px-3 py-1.5 rounded text-sm scale-95 active:scale-90" href="#">Deals</a>
+<a class="text-[#2c2f31] dark:text-slate-400 hover:bg-[#dfe3e6] dark:hover:bg-slate-800 transition-colors px-3 py-1.5 rounded text-sm scale-95 active:scale-90" href="#">Sell</a>
+</nav>
+<!-- Right: Trailing Actions -->
+<div class="flex items-center gap-4 text-[#0057bd] dark:text-[#6e9fff]">
+<button class="p-2 rounded-full hover:bg-[#dfe3e6] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90 relative">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<button class="p-2 rounded-full hover:bg-[#dfe3e6] dark:hover:bg-slate-800 transition-colors scale-95 active:scale-90">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden ml-2 border border-outline-variant/20">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="close-up portrait of a woman with neutral expression against soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3rbeQ_MvcwfuIF85ukSgsGzfqReidlEpPJoQfyiXQdNF7HYYK6MHHt-3eSGbJZUYrLMBAk1g0mp4hP9ufR8_M2y5Wj8eOCJXvnR8QKESrT5Z7O3LsLGt-ZZ-3ROgxuCrKDXrrir0xxOxJ87oC_PjAA6U5UahduJTbkzFve3JJfG7TrNY6mCTOC3IC5ARxYDIJbOv15XM6ZPbg3hJRKUeE77YiprGCsCxmaPTzV-0vpm83A1aZQVs0FTNf6krazIpoIEyz9ujBl5_R"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow pt-[88px]">
+<!-- Secondary Category Navigation (The Breath of Layout) -->
+<div class="bg-surface sticky top-[72px] z-40 transition-colors">
+<div class="max-w-7xl mx-auto px-8 py-6">
+<nav class="flex items-center gap-3 overflow-x-auto no-scrollbar">
+<button class="bg-primary text-on-primary font-label text-sm font-semibold px-5 py-2 rounded-full flex-shrink-0 transition-all shadow-[0_4px_16px_-4px_rgba(0,87,189,0.3)]">All Objects</button>
+<button class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors">Furniture</button>
+<button class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors">Lighting</button>
+<button class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors">Ceramics &amp; Decor</button>
+<button class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors">Textiles</button>
+<button class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors">Workspace</button>
+</nav>
+</div>
+</div>
+<!-- Catalog Header (Intentional Asymmetry) -->
+<div class="max-w-7xl mx-auto px-8 py-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+<div class="max-w-xl">
+<h1 class="font-headline text-5xl font-bold tracking-tight text-on-surface mb-4">Curated Living</h1>
+<p class="font-body text-base text-on-surface-variant leading-relaxed">Discover our meticulously selected pieces designed to elevate your everyday spaces with intentional form and function.</p>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 text-on-surface font-label text-sm font-medium px-4 py-2 rounded border border-outline-variant/20 hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined text-sm">tune</span>
+                    Filter
+                </button>
+<div class="relative">
+<button class="flex items-center gap-2 text-on-surface font-label text-sm font-medium px-4 py-2 rounded border border-outline-variant/20 hover:bg-surface-container-low transition-colors">
+                        Sort by: Featured
+                        <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Product Grid (High-Trust Layering, No-Line Rule) -->
+<div class="max-w-7xl mx-auto px-8 pb-24">
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+<!-- Product Card 1 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<!-- Image Container (Tonal Layering) -->
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist mid-century modern lounge chair in soft natural studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBk6sngdl0YQ75gmaBaQvj-IrFeUVRaDJqD0k6LcdH3pguUwuBDTyZvmWKuMwAHkbaNsKFru6DgWtFZudQNKtZMPpSiPSVAbsGBrg6JjpNXOa2toiF_jOe8x5dYoN1zgtHkblwkVr1AMXkuqK-67-RkDmdro52tYCYiH2FWfmV2TVcfcWpsQEo9b1whIBwnPN7qxrGqYbCXboL_VIA062ehJWRMI88Avsk5noqqFU9V3qRvJ_fJhkyHoEbl2JPGV3q8Pv4tyyde6Ola"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-secondary-container/90 backdrop-blur-md text-on-secondary-container text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">In Stock</span>
+</div>
+</div>
+<!-- Details (Editorial Typography) -->
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Koto Lounge Chair</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Walnut &amp; Linen</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$1,450</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 2 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="sleek matte black architectural desk lamp on a white marble surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqTd1SnBXeGN8F5Clz5jcsfrHhQfqPxV8Tm3muUpDgrFEX27gO8bqWEnGsi5LeqEl4ba9HAz-s9InrrlIT-IMHtvroLkXV8nQ5pZdDVHUJAOUqK66CGkuCJ73DA9qSaGaxe3B2v9qGI-f0REl9VWJYezD9V36FxuZLsOe--leD0wv9Pm27JH8iTgsYrZL5FDMnRdhOXsv3_9I-89FFHV8nWlBXbgdB43wuAQd0EkptvqrDid0vhgBGMVj2qAUUpuyWbaIstUrSHRHU"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-error text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm border border-outline-variant/10">Only 2 left</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Aero Desk Lamp</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Matte Black</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$320</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 3 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="artisan textured ceramic vase with dried grass stems in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHiKPsBCXwBi4WYUC8hWK6K_hthf8qUIYXDF9gG1hSDWZxgWOEG-ZRJ8Q7Lvpk0qX73jR-zt6eYRH4cvdLyMaJR99CodT1Ovoz2cNgP0zDzSDLIkTGbluGkJgTLGqrxItRhXhF0LjmiGxVAag0MgWW6AQcsXUpMX33Ujdjk4wC0lFLu7dR8Y1l3Y0olL_7h9FW2Wqci1F-62waPhwkEwOiz6mOYwhvsJxxOsznguMKcg7VMtxFycWgeAWdboBrNRBSoI0WGDbnxjk_"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-secondary-container/90 backdrop-blur-md text-on-secondary-container text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">In Stock</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Terra Ceramic Vase</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Sandstone</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$145</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 4 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="solid oak modern minimalist dining table set in an airy bright room" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0oMmNWIWGhGuz1Z9g-2rST0Fk7HaEFFBdqrj3RmKJUELM2JlCyWgF-5YoINA4BtaqNx0xj7IuOP0JqzR0B-nyoCzn1V6805Hdrc6vVSrCuBG96SJJ7b007Ombs14SHcRxxwG1P6FnQn19N3xw4MjjmzEkbFGanAJmXe9WEutlbLGCMWox9zylfAj3Y1EZoh8xgiOuIpRb5-BY1nL2jF_TbhuqxS91oAy4Fz_Hfv4C_0vxdqoF7R75P5YB1cO9FKu1Xr655uXQMTgY"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-surface-container-highest/90 backdrop-blur-md text-on-surface-variant text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">Pre-order</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Nora Dining Table</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Solid White Oak</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$2,800</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 5 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="soft textured organic linen throw blanket draped casually on a light surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDe4VSCLFbzTKj8WmWAQ4wSjtxuQ2GuQaJqQR1YWG8Ip4_hT9tElHM8OMbWkyI26_QtU3C3ASMjlBo85wBKHxgperK_1nL-XNiccYwUyPhTGnDlWPZFG5i2iYbXDuyZ9kPUtGw6RBuWlcIcjwIs9fFbWtcfZNiTEldBryeHMKq33jSjN3JqFNy2M6eUwereAkzuSq48_cedylGFLMpHGFAmkAOr-h5dZklXgY5ADrFO06WsliJ4lHZQ91sYcl01Z3KGmlynF0FLNhKp"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-secondary-container/90 backdrop-blur-md text-on-secondary-container text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">In Stock</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Organic Linen Throw</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Oatmeal</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$185</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 6 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist modular desk organizer tray made of brass and dark wood" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDr2RpTGwhavPZjbbBg7mNsoq4lEWUeY79tT1WnhhdFba4stTwmkJw6qjl6_Wry4YDlnjkjnCwdZ5mXVKoR8h_RzLURAwWKcEre3g-e4sEoFQ81qGkhy7kNesT8Y1K7fbRyL93l0lhYMASpW97yGf8f_kBsghFgFzvZJux2KSi9TVJMnfQWLe3tpDuhEfJ-dLrcE9d6-D5OWlsuTnTXRL33lbfWY7MgvX9HBO2WVOuQbduJ0kDXuItU-qHPDvaCzA7ZkTWch3Hnwcf"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-surface-container-lowest/90 backdrop-blur-md text-error text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm border border-outline-variant/10">Only 5 left</span>
+</div>
+<!-- Delicate Badge Delight -->
+<div class="absolute top-4 right-4 bg-tertiary text-on-tertiary w-8 h-8 rounded-full flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Forma Organizer</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Brass &amp; Walnut</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$95</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 7 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="sculptural geometric mirror reflecting soft natural light against a white wall" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA6ViZ3deQE0I0ky6KDCoo-2H_AmnGCQjV2Hzq4EWhLD2eIFEJMCi3x1DkXwVPQChTUj6WZWr9ulBY9M6NK0VOuNCjmW9xxtkAlfDPjJqaYcFuPiyM9-OFFonnEEl71ghPI9BcOpi_l4A9yCQUe7cZQS-xzNZr0yoKepsrxt8l8YBEzepk91-m6rc_Sqo18qQyHoAGbOSBioZiKGBDOkcdKiWpkocKoReDeOxY0hN5HlmppZ8OMAR5KmRd384RBxc_Pt9Qj9sqsM5dT"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-secondary-container/90 backdrop-blur-md text-on-secondary-container text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">In Stock</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Crescent Wall Mirror</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Brushed Nickel</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$450</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+<!-- Product Card 8 -->
+<article class="flex flex-col gap-4 group cursor-pointer">
+<div class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="minimalist upholstered modern armchair in soft boucle fabric set against plain background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9SSBB0P0wrbHzPkj1uoFPc_IjFzDLPsrHQvcHgoAU0DAkGSjb8XxJOtqIG7H0SkhdAo7i8NvOd0sk9qareENa9BBxs7ZgJqQyvFlDe_H1uSKdRFmgzfbgz4booPRy1d_ao0izNFgn5bjBJeECQnQf0X_Nzek9UpSdH_ocYKrOKPulnZGJiPnsra_OBvlTsNIViSz_VFybANShYYD5BHiHDomMHxTNDs9NEQpzxmOA_w9gSlFOkUSGoCCu3ayb_bpHYSO26VLKqNzV"/>
+<div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+<span class="bg-surface-container-highest/90 backdrop-blur-md text-on-surface-variant text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm">Pre-order</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 px-1 mt-1">
+<div class="flex justify-between items-start gap-4">
+<div>
+<h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">Cloud Boucle Chair</h3>
+<p class="font-body text-sm text-on-surface-variant mt-0.5">Ivory</p>
+</div>
+<span class="font-headline font-bold text-lg text-on-surface">$1,150</span>
+</div>
+<button class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2">
+                            Add to Cart
+                        </button>
+</div>
+</article>
+</div>
+</div>
+</main>
+<!-- Footer (Shared Component) -->
+<div class="bg-[#f5f7f9] dark:bg-slate-950 w-full mt-auto">
+<footer class="w-full py-12 border-t border-[#abadaf]/20 font-['Inter'] text-xs uppercase tracking-widest text-[#0057bd] dark:text-[#6e9fff] opacity-80 hover:opacity-100 transition-opacity duration-300">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-8 px-8 max-w-7xl mx-auto">
+<div class="col-span-1 md:col-span-2 flex flex-col gap-4">
+<span class="font-bold text-[#2c2f31] dark:text-white text-sm normal-case tracking-normal">Atelier Commerce</span>
+<p class="text-[#2c2f31]/60 dark:text-slate-500 normal-case tracking-normal">© 2024 Atelier Commerce. Designed for Quality.</p>
+</div>
+<div class="flex flex-col gap-3">
+<a class="text-[#2c2f31]/60 dark:text-slate-500 hover:text-[#0057bd] transition-colors" href="#">Privacy Policy</a>
+<a class="text-[#2c2f31]/60 dark:text-slate-500 hover:text-[#0057bd] transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-3">
+<a class="text-[#2c2f31]/60 dark:text-slate-500 hover:text-[#0057bd] transition-colors" href="#">Support</a>
+<a class="text-[#2c2f31]/60 dark:text-slate-500 hover:text-[#0057bd] transition-colors" href="#">API Docs</a>
+</div>
+</div>
+</footer>
+</div>
+</body></html>

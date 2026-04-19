@@ -1,5 +1,6 @@
-import { HttpClient } from '@angular/common/http'
-import { Component } from '@angular/core'
+import { HttpClient } from '@angular/common/http';
+import { Component } from '@angular/core';
+import { API_BASE_URL } from '../../../../core/config/api-base';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,7 @@ export class HomeComponent {
   }
   justTest () {
     this.http
-      .post('https://yallashop-api.runasp.net/api/Auth/login', {
+      .post(`${API_BASE_URL}/Auth/login`, {
         userName: 'system@admin.com',
         password: 'P@ssw0rd'
       })
