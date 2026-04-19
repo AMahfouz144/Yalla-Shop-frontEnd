@@ -1,189 +1,174 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, catchError, delay, map, of, throwError } from 'rxjs';
+import { Observable, forkJoin, map, of, tap } from 'rxjs';
 import { ResponseModel } from '../../../core/Interfaces/response-model';
-import { createAdminMockState, createMockSellers } from '../mock/admin-dashboard.mock-data';
+import { API_BASE_URL } from '../../../core/config/api-base';
 import {
-  AdminCategory,
+  AdminCustomer,
   AdminDashboardSummary,
   AdminProduct,
-  AdminSeller,
-  AdminUser,
-  ProductStatus,
-  SellerApprovalStatus
+  AdminProductStatusCode,
+  AdminSeller
 } from '../models/admin.models';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AdminDashboardService {
-  private readonly adminApiUrl = 'https://yallashop-api.runasp.net/api/admin';
-  private readonly fallbackLatencyMs = 250;
+  private readonly adminApiUrl = `${API_BASE_URL}/Admin`;
+  private customersCache: AdminCustomer[] | null = null;
+  private sellersCache: AdminSeller[] | null = null;
+  private productsCache: AdminProduct[] | null = null;
 
-  private usersState: AdminUser[];
-  private categoriesState: AdminCategory[];
+  constructor(private readonly http: HttpClient) {}
 
-  constructor(private readonly http: HttpClient) {
-    const initialState = createAdminMockState();
-    this.usersState = initialState.users;
-    this.categoriesState = initialState.categories;
+  getCustomers(forceRefresh = false): Observable<AdminCustomer[]> {
+    if (!forceRefresh && this.customersCache) {
+      return of(this.customersCache);
+    }
+
+    return this.http
+      .get<ResponseModel<unknown[]>>(`${this.adminApiUrl}/customers`)
+      .pipe(
+        map((response) => this.extractData(response)),
+        map((customers) => customers.map((item) => this.mapUser(item))),
+        tap((customers) => (this.customersCache = customers))
+      );
   }
 
-  getSummary(): Observable<AdminDashboardSummary> {
-    return this.http.get<ResponseModel<AdminDashboardSummary>>(`${this.adminApiUrl}/dashboard/summary`).pipe(
-      map((response) => response.data),
-      catchError(() => this.mockResponse(this.buildSummary()))
-    );
+  getSellers(forceRefresh = false): Observable<AdminSeller[]> {
+    if (!forceRefresh && this.sellersCache) {
+      return of(this.sellersCache);
+    }
+
+    return this.http
+      .get<ResponseModel<unknown[]>>(`${this.adminApiUrl}/sellers`)
+      .pipe(
+        map((response) => this.extractData(response)),
+        map((sellers) => sellers.map((item) => this.mapUser(item))),
+        tap((sellers) => (this.sellersCache = sellers))
+      );
   }
 
-  getUsers(): Observable<AdminUser[]> {
-    return this.http.get<ResponseModel<AdminUser[]>>(`${this.adminApiUrl}/users`).pipe(
-      map((response) => response.data),
-      catchError(() => this.mockResponse(this.clone(this.usersState)))
-    );
+  getProducts(forceRefresh = false): Observable<AdminProduct[]> {
+    if (!forceRefresh && this.productsCache) {
+      return of(this.productsCache);
+    }
+
+    return this.http
+      .get<ResponseModel<unknown[]>>(`${this.adminApiUrl}/products`)
+      .pipe(
+        map((response) => this.extractData(response)),
+        map((products) => products.map((item) => this.mapProduct(item))),
+        tap((products) => (this.productsCache = products))
+      );
   }
 
-  getSellers(): Observable<AdminSeller[]> {
-    return this.http.get<ResponseModel<AdminSeller[]>>(`${this.adminApiUrl}/sellers`).pipe(
-      map((response) => response.data),
-      catchError(() => this.mockResponse(this.buildSellers()))
-    );
-  }
-
-  getCategoriesWithProducts(): Observable<AdminCategory[]> {
-    return this.http.get<ResponseModel<AdminCategory[]>>(`${this.adminApiUrl}/categories-with-products`).pipe(
-      map((response) => response.data),
-      catchError(() => this.mockResponse(this.clone(this.categoriesState)))
-    );
-  }
-
-  getProducts(): Observable<AdminProduct[]> {
-    return this.getCategoriesWithProducts().pipe(
-      map((categories) => categories.flatMap((category) => category.products))
+  getPendingProducts(forceRefresh = false): Observable<AdminProduct[]> {
+    return this.getProducts(forceRefresh).pipe(
+      map((products) => products.filter((product) => product.status === 0))
     );
   }
 
   toggleUserStatus(userId: string): Observable<boolean> {
-    return this.http.put<ResponseModel<boolean>>(`${this.adminApiUrl}/users/${userId}/toggle-status`, {}).pipe(
-      map((response) => response.data),
-      catchError(() => {
-        const user = this.usersState.find((item) => item.id === userId);
-        if (!user) {
-          return throwError(() => new Error('User not found.'));
-        }
+    return this.http
+      .put<ResponseModel<boolean>>(`${this.adminApiUrl}/user/${userId}/toggleStatus`, {})
+      .pipe(
+        map((response) => this.extractData(response)),
+        tap(() => this.invalidateUsersCache())
+      );
+  }
 
-        user.isActive = !user.isActive;
-        return this.mockResponse(true);
-      })
+  updateProductStatus(productId: string, status: AdminProductStatusCode): Observable<boolean> {
+    return this.http
+      .put<ResponseModel<boolean>>(`${this.adminApiUrl}/product/${productId}/status/${status}`, {})
+      .pipe(
+        map((response) => this.extractData(response)),
+        tap(() => (this.productsCache = null))
+      );
+  }
+
+  getDashboardSummary(forceRefresh = false): Observable<AdminDashboardSummary> {
+    return forkJoin({
+      customers: this.getCustomers(forceRefresh),
+      sellers: this.getSellers(forceRefresh),
+      products: this.getProducts(forceRefresh)
+    }).pipe(
+      map(({ customers, sellers, products }) => ({
+        totalCustomers: customers.length,
+        totalSellers: sellers.length,
+        totalProducts: products.length,
+        pendingProducts: products.filter((product) => product.status === 0).length,
+        activeCustomers: customers.filter((customer) => customer.isActive).length,
+        activeSellers: sellers.filter((seller) => seller.isActive).length
+      }))
     );
   }
 
-  updateSellerApproval(userId: string, status: SellerApprovalStatus): Observable<AdminSeller> {
-    const seller = this.usersState.find((item): item is AdminSeller => item.id === userId && item.role === 'Seller');
-    if (!seller) {
-      return throwError(() => new Error('Seller not found.'));
+  getProductStatusText(status: AdminProductStatusCode): 'Pending' | 'Accepted' | 'Rejected' {
+    if (status === 1) {
+      return 'Accepted';
     }
-
-    seller.sellerApprovalStatus = status;
-    seller.isActive = status === 'Approved' ? true : seller.isActive;
-
-    if (status === 'Rejected') {
-      seller.isActive = false;
+    if (status === 2) {
+      return 'Rejected';
     }
+    return 'Pending';
+  }
 
-    const hydratedSeller = this.buildSellers().find((item) => item.id === userId);
-    if (!hydratedSeller) {
-      return throwError(() => new Error('Seller not found.'));
+  private invalidateUsersCache(): void {
+    this.customersCache = null;
+    this.sellersCache = null;
+  }
+
+  private extractData<T>(response: ResponseModel<T>): T {
+    if (!response.isSuccess) {
+      throw new Error(response.message || 'Request failed.');
     }
-
-    return this.mockResponse(this.clone(hydratedSeller));
+    return response.data;
   }
 
-  acceptProduct(productId: string): Observable<AdminProduct> {
-    return this.updateProductStatus(productId, 'Accepted', `${this.adminApiUrl}/products/${productId}/accept`);
-  }
-
-  rejectProduct(productId: string): Observable<AdminProduct> {
-    return this.updateProductStatus(productId, 'Rejected', `${this.adminApiUrl}/products/${productId}/reject`);
-  }
-
-  deleteProduct(productId: string): Observable<boolean> {
-    return this.http.delete<ResponseModel<boolean>>(`${this.adminApiUrl}/products/${productId}`).pipe(
-      map((response) => response.data),
-      catchError(() => {
-        let wasDeleted = false;
-
-        this.categoriesState = this.categoriesState.map((category) => {
-          const nextProducts = category.products.filter((product) => product.id !== productId);
-          if (nextProducts.length !== category.products.length) {
-            wasDeleted = true;
-          }
-
-          return {
-            ...category,
-            products: nextProducts
-          };
-        });
-
-        if (!wasDeleted) {
-          return throwError(() => new Error('Product not found.'));
-        }
-
-        return this.mockResponse(true);
-      })
-    );
-  }
-
-  private updateProductStatus(productId: string, status: ProductStatus, endpoint: string): Observable<AdminProduct> {
-    return this.http.put<ResponseModel<AdminProduct>>(endpoint, {}).pipe(
-      map((response) => response.data),
-      catchError(() => {
-        const product = this.findProduct(productId);
-        if (!product) {
-          return throwError(() => new Error('Product not found.'));
-        }
-
-        product.status = status;
-        return this.mockResponse(this.clone(product));
-      })
-    );
-  }
-
-  private buildSummary(): AdminDashboardSummary {
-    const products = this.categoriesState.flatMap((category) => category.products);
-    const sellers = this.buildSellers();
-
+  private mapUser(item: any): AdminCustomer {
+    const isActive = this.toBoolean(item.isActive ?? item.isDeleted === false ?? true);
     return {
-      totalUsers: this.usersState.length,
-      totalSellers: sellers.length,
-      totalCategories: this.categoriesState.length,
-      totalProducts: products.length,
-      pendingProducts: products.filter((product) => product.status === 'Pending').length,
-      disabledUsers: this.usersState.filter((user) => !user.isActive).length,
-      pendingSellers: sellers.filter((seller) => seller.sellerApprovalStatus === 'Pending').length
+      id: String(item.id ?? item.userId ?? ''),
+      fullName: String(item.fullName ?? item.name ?? item.displayName ?? '-'),
+      userName: String(item.userName ?? item.email ?? '-'),
+      isActive,
+      statusLabel: isActive ? 'Active' : 'Deleted'
     };
   }
 
-  private buildSellers(): AdminSeller[] {
-    return createMockSellers(this.usersState, this.categoriesState);
+  private mapProduct(item: any): AdminProduct {
+    return {
+      id: String(item.id ?? item.productId ?? ''),
+      productName: String(item.productName ?? item.name ?? '-'),
+      image: String(item.image ?? item.imageUrl ?? item.thumbnail ?? ''),
+      price: Number(item.price ?? 0),
+      stockQuantity: Number(item.stockQuantity ?? item.quantity ?? 0),
+      status: this.toStatusCode(item.status),
+      categoryId: String(item.categoryId ?? '-'),
+      sellerId: String(item.sellerId ?? '-')
+    };
   }
 
-  private findProduct(productId: string): AdminProduct | undefined {
-    for (const category of this.categoriesState) {
-      const product = category.products.find((item) => item.id === productId);
-      if (product) {
-        return product;
-      }
+  private toBoolean(value: unknown): boolean {
+    if (typeof value === 'boolean') {
+      return value;
     }
-
-    return undefined;
+    if (typeof value === 'number') {
+      return value > 0;
+    }
+    if (typeof value === 'string') {
+      return value.toLowerCase() === 'true';
+    }
+    return false;
   }
 
-  private mockResponse<T>(value: T): Observable<T> {
-    return of(this.clone(value)).pipe(delay(this.fallbackLatencyMs));
-  }
-
-  private clone<T>(value: T): T {
-    return JSON.parse(JSON.stringify(value)) as T;
+  private toStatusCode(value: unknown): AdminProductStatusCode {
+    const numeric = Number(value);
+    if (numeric === 1 || numeric === 2) {
+      return numeric;
+    }
+    return 0;
   }
 }

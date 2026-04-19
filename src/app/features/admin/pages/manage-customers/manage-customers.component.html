@@ -1,17 +1,15 @@
 <section class="space-y-6">
   <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
     <div>
-      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Sellers</p>
-      <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Sellers management</h2>
+      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Customers</p>
+      <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Customers management</h2>
     </div>
-
     <button
       type="button"
-      class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-      (click)="loadSellers(true)"
+      class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      (click)="loadCustomers(true)"
     >
-      <span class="material-symbols-outlined text-[18px]">refresh</span>
-      Reload Sellers
+      Reload
     </button>
   </div>
 
@@ -26,13 +24,8 @@
       />
     </div>
 
-    <div *ngIf="isLoading" class="rounded-xl border border-dashed border-slate-300 px-6 py-8 text-center text-slate-500">
-      Loading sellers...
-    </div>
-
-    <div *ngIf="!isLoading && errorMessage" class="rounded-xl border border-rose-200 bg-rose-50 px-5 py-4 text-sm text-rose-700">
-      {{ errorMessage }}
-    </div>
+    <div *ngIf="isLoading" class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">Loading customers...</div>
+    <div *ngIf="!isLoading && errorMessage" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{{ errorMessage }}</div>
 
     <div *ngIf="!isLoading && !errorMessage" class="overflow-x-auto">
       <table class="min-w-full divide-y divide-slate-200">
@@ -44,35 +37,33 @@
             <th class="pb-4 text-right">Action</th>
           </tr>
         </thead>
-
         <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let seller of pagedSellers; trackBy: trackBySellerId" class="align-top">
-            <td class="py-4 pr-4 font-semibold text-slate-950">{{ seller.fullName }}</td>
-            <td class="py-4 pr-4 text-sm text-slate-600">{{ seller.userName }}</td>
+          <tr *ngFor="let customer of pagedCustomers; trackBy: trackByUserId">
+            <td class="py-4 pr-4 font-semibold text-slate-950">{{ customer.fullName }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-600">{{ customer.userName }}</td>
             <td class="py-4 pr-4">
               <span
                 class="rounded-full px-3 py-1 text-xs font-semibold"
-                [ngClass]="seller.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                [ngClass]="customer.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
               >
-                {{ seller.statusLabel }}
+                {{ customer.statusLabel }}
               </span>
             </td>
             <td class="py-4 text-right">
               <button
                 type="button"
                 class="rounded-xl px-4 py-2 text-sm font-semibold transition"
-                [ngClass]="seller.isActive ? 'bg-rose-50 text-rose-700 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
-                [disabled]="processingSellerId === seller.id"
-                (click)="toggleStatus(seller)"
+                [ngClass]="customer.isActive ? 'bg-rose-50 text-rose-700 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+                [disabled]="processingUserId === customer.id"
+                (click)="toggleStatus(customer)"
               >
-                {{ processingSellerId === seller.id ? 'Saving...' : (seller.isActive ? 'Deactivate' : 'Activate') }}
+                {{ processingUserId === customer.id ? 'Saving...' : (customer.isActive ? 'Deactivate' : 'Activate') }}
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-
-      <div *ngIf="pagedSellers.length === 0" class="py-8 text-center text-sm text-slate-500">No sellers found.</div>
+      <div *ngIf="pagedCustomers.length === 0" class="py-8 text-center text-sm text-slate-500">No customers found.</div>
     </div>
 
     <div class="mt-5 flex items-center justify-between" *ngIf="!isLoading && !errorMessage">
@@ -81,7 +72,12 @@
         <button type="button" class="rounded-lg border border-slate-200 px-3 py-1 text-sm" [disabled]="currentPage === 1" (click)="changePage(-1)">
           Prev
         </button>
-        <button type="button" class="rounded-lg border border-slate-200 px-3 py-1 text-sm" [disabled]="currentPage === totalPages" (click)="changePage(1)">
+        <button
+          type="button"
+          class="rounded-lg border border-slate-200 px-3 py-1 text-sm"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(1)"
+        >
           Next
         </button>
       </div>

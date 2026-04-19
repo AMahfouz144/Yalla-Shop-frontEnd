@@ -6,7 +6,7 @@ const routes: Routes = [
   // Default redirect
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'auth/login',
     pathMatch: 'full'
   },
 
@@ -16,13 +16,6 @@ const routes: Routes = [
     loadChildren: () =>
       import('./features/auth/auth.module').then(m => m.AuthModule)
   },
-
-  // Unified dashboard feature module
-  // {
-  //   path: 'dashboard',
-  //   loadChildren: () =>
-  //     import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
-  // },
 
   // Admin area
   {

@@ -1,52 +1,35 @@
-export type AdminUserRole = 'Admin' | 'Seller' | 'Customer';
-export type ProductStatus = 'Pending' | 'Accepted' | 'Rejected';
-export type SellerApprovalStatus = 'Pending' | 'Approved' | 'Rejected';
+export type AdminProductStatusCode = 0 | 1 | 2;
 
 export interface AdminDashboardSummary {
-  totalUsers: number;
+  totalCustomers: number;
   totalSellers: number;
-  totalCategories: number;
   totalProducts: number;
   pendingProducts: number;
-  disabledUsers: number;
-  pendingSellers: number;
+  activeCustomers: number;
+  activeSellers: number;
 }
 
-export interface AdminUser {
+export interface AdminManagedUser {
   id: string;
-  name: string;
-  email: string;
-  role: AdminUserRole;
+  fullName: string;
+  userName: string;
   isActive: boolean;
-  createdAt: string;
-  sellerApprovalStatus?: SellerApprovalStatus;
-  storeName?: string;
+  statusLabel: 'Active' | 'Deleted';
 }
 
-export interface AdminSeller extends AdminUser {
-  role: 'Seller';
-  sellerApprovalStatus: SellerApprovalStatus;
-  storeName: string;
-  productsCount: number;
-}
+export interface AdminCustomer extends AdminManagedUser {}
+
+export interface AdminSeller extends AdminManagedUser {}
 
 export interface AdminProduct {
   id: string;
-  name: string;
+  productName: string;
+  image: string;
   price: number;
-  status: ProductStatus;
+  stockQuantity: number;
+  status: AdminProductStatusCode;
   categoryId: string;
-  categoryName: string;
   sellerId: string;
-  sellerName: string;
-  createdAt: string;
-}
-
-export interface AdminCategory {
-  id: string;
-  name: string;
-  description: string;
-  products: AdminProduct[];
 }
 
 export interface AdminNavigationItem {

@@ -3,15 +3,13 @@
     <div>
       <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Products</p>
       <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Moderate marketplace products</h2>
-      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
-        This page surfaces all products in one table with status filters and the required admin actions: accept, reject, or delete.
-      </p>
+      <p class="mt-2 max-w-3xl text-sm leading-6 text-slate-500">This table covers product visibility, stock, and moderation actions.</p>
     </div>
 
     <button
       type="button"
       class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50"
-      (click)="loadProducts()"
+      (click)="loadProducts(true)"
     >
       <span class="material-symbols-outlined text-[18px]">refresh</span>
       Reload Products
@@ -47,7 +45,14 @@
         <p class="mt-2 text-sm text-slate-500">Filter by status and apply moderation actions without switching categories.</p>
       </div>
 
-      <div class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2 lg:max-w-[56%] lg:justify-end">
+        <input
+          type="text"
+          class="min-w-60 rounded-xl border border-slate-300 px-4 py-2 text-sm outline-none focus:border-slate-500"
+          placeholder="Search by product name, category ID, seller ID"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+        />
         <button
           *ngFor="let filter of statusFilters"
           type="button"
@@ -73,36 +78,46 @@
         <thead>
           <tr class="text-left text-sm font-semibold text-slate-500">
             <th class="pb-4 pr-4">Product</th>
-            <th class="pb-4 pr-4">Category</th>
-            <th class="pb-4 pr-4">Seller</th>
+            <th class="pb-4 pr-4">Category ID</th>
+            <th class="pb-4 pr-4">Seller ID</th>
             <th class="pb-4 pr-4">Price</th>
+            <th class="pb-4 pr-4">Image</th>
+            <th class="pb-4 pr-4">Stock Quantity</th>
             <th class="pb-4 pr-4">Status</th>
-            <th class="pb-4 pr-4">Created</th>
             <th class="pb-4 text-right">Actions</th>
           </tr>
         </thead>
 
         <tbody class="divide-y divide-slate-100">
-          <tr *ngFor="let product of filteredProducts; trackBy: trackByProductId" class="align-top">
+          <tr *ngFor="let product of pagedProducts; trackBy: trackByProductId" class="align-top">
             <td class="py-4 pr-4">
-              <p class="font-semibold text-slate-950">{{ product.name }}</p>
+              <p class="font-semibold text-slate-950">{{ product.productName }}</p>
               <p class="mt-1 text-sm text-slate-500">ID: {{ product.id }}</p>
             </td>
-            <td class="py-4 pr-4 text-sm text-slate-600">{{ product.categoryName }}</td>
-            <td class="py-4 pr-4 text-sm text-slate-600">{{ product.sellerName }}</td>
-            <td class="py-4 pr-4 text-sm font-medium text-slate-900">{{ formatPrice(product.price) }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-600">{{ product.categoryId }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-600">{{ product.sellerId }}</td>
+            <td class="py-4 pr-4 text-sm font-medium text-slate-900">{{ product.price | number: '1.0-2' }}</td>
+            <td class="py-4 pr-4">
+              <button
+                type="button"
+                class="rounded-lg border border-slate-200 p-1 hover:bg-slate-50"
+                (click)="openImagePreview(product.image)"
+              >
+                <img [src]="product.image || 'https://placehold.co/64x64?text=No+Image'" class="h-10 w-10 rounded object-cover" alt="Product image" />
+              </button>
+            </td>
+            <td class="py-4 pr-4 text-sm text-slate-700">{{ product.stockQuantity }}</td>
             <td class="py-4 pr-4">
               <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="getStatusClasses(product.status)">
-                {{ product.status }}
+                {{ getStatusText(product) }}
               </span>
             </td>
-            <td class="py-4 pr-4 text-sm text-slate-600">{{ product.createdAt | date: 'mediumDate' }}</td>
             <td class="py-4 text-right">
               <div class="flex flex-wrap justify-end gap-2">
                 <button
                   type="button"
                   class="rounded-xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  [disabled]="processingProductId === product.id || product.status === 'Accepted'"
+                  [disabled]="processingProductId === product.id || product.status === 1"
                   (click)="acceptProduct(product)"
                 >
                   Accept
@@ -111,19 +126,10 @@
                 <button
                   type="button"
                   class="rounded-xl bg-amber-50 px-4 py-2 text-sm font-semibold text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  [disabled]="processingProductId === product.id || product.status === 'Rejected'"
+                  [disabled]="processingProductId === product.id || product.status === 2"
                   (click)="rejectProduct(product)"
                 >
                   Reject
-                </button>
-
-                <button
-                  type="button"
-                  class="rounded-xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-60"
-                  [disabled]="processingProductId === product.id"
-                  (click)="deleteProduct(product)"
-                >
-                  {{ processingProductId === product.id ? 'Deleting...' : 'Delete' }}
                 </button>
               </div>
             </td>
@@ -131,9 +137,21 @@
         </tbody>
       </table>
 
-      <div *ngIf="filteredProducts.length === 0" class="rounded-[1.5rem] border border-dashed border-slate-300 px-6 py-8 text-center text-slate-500">
+      <div *ngIf="pagedProducts.length === 0" class="rounded-[1.5rem] border border-dashed border-slate-300 px-6 py-8 text-center text-slate-500">
         No products found for the selected filter.
       </div>
     </div>
+  </div>
+
+  <div class="flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200">
+    <p class="text-sm text-slate-500">Page {{ currentPage }} of {{ totalPages }}</p>
+    <div class="flex gap-2">
+      <button type="button" class="rounded-lg border border-slate-200 px-3 py-1 text-sm" [disabled]="currentPage === 1" (click)="changePage(-1)">Prev</button>
+      <button type="button" class="rounded-lg border border-slate-200 px-3 py-1 text-sm" [disabled]="currentPage === totalPages" (click)="changePage(1)">Next</button>
+    </div>
+  </div>
+
+  <div *ngIf="previewImage" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" (click)="closeImagePreview()">
+    <img [src]="previewImage" class="max-h-[80vh] max-w-[80vw] rounded-2xl bg-white p-2" alt="Product preview" />
   </div>
 </section>

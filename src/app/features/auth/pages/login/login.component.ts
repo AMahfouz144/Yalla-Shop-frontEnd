@@ -28,6 +28,10 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -42,14 +46,17 @@ export class LoginComponent {
       next: (res) => {
         this.isSubmitting = false;
         if (res.isSuccess) {
-          this.authService.setSession(res.data);
+          const loginData = res?.data;
+          const role = typeof loginData?.role === 'string' ? loginData.role : '';
 
-          const fallbackRoute = this.authService.getDashboardRouteByRole(res.data.role);
+          this.authService.setSession(loginData);
+
+          const fallbackRoute = this.authService.getDashboardRouteByRole(role || null);
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
           const canUseReturnUrl =
             !!returnUrl &&
             !returnUrl.startsWith('/auth') &&
-            (res.data.role.toLowerCase() === 'admin' || !returnUrl.startsWith('/admin'));
+            (role.toLowerCase() === 'admin' || !returnUrl.startsWith('/admin'));
 
           this.router.navigateByUrl(canUseReturnUrl ? returnUrl : fallbackRoute);
         } else {

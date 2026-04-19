@@ -1,15 +1,15 @@
-import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { API_BASE_URL } from '../config/api-base';
-import { ResponseModel } from '../Interfaces/response-model';
-import { LoginResponse } from '../Interfaces/login-response';
+import { Injectable } from '@angular/core'
+import { HttpClient } from '@angular/common/http'
+import { Observable } from 'rxjs'
+import { API_BASE_URL } from '../config/api-base'
+import { ResponseModel } from '../Interfaces/response-model'
+import { LoginResponse } from '../Interfaces/login-response'
 
 export interface AuthSessionUser {
-  userId: string;
-  fullName: string;
-  userName: string;
-  role: string;
+  userId: string
+  fullName: string
+  userName: string
+  role: string
 }
 
 @Injectable({
@@ -17,119 +17,132 @@ export interface AuthSessionUser {
 })
 export class AuthService {
   /** Matches `api/Auth` on the server (see Swagger). */
-  private readonly apiUrl = `${API_BASE_URL}/Auth`;
+  private readonly apiUrl = `${API_BASE_URL}/Auth`
 
-  constructor(private http: HttpClient) { }
+  constructor (private http: HttpClient) {}
 
-  register(userData: any): Observable<any> {
+  register (userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, {
       ...userData,
       clientUrl: window.location.origin
-    });
+    })
   }
-  confirmEmail(userId: string, code: string) {
+  confirmEmail (userId: string, code: string) {
     return this.http.post<ResponseModel<boolean>>(
       `${this.apiUrl}/confirm-email`,
       { userId, code }
-    );
+    )
   }
-  ForgetPassword(data: { userName: string }): Observable<any> {
-    return this.http.post<ResponseModel<any>>(`${this.apiUrl}/forgot-password`, data);
+  ForgetPassword (data: { userName: string }): Observable<any> {
+    return this.http.post<ResponseModel<any>>(
+      `${this.apiUrl}/forgot-password`,
+      data
+    )
   }
-  ResetPassword(userId: string, code: string, data: any): Observable<any> {
-    return this.http.post<ResponseModel<any>>(`${this.apiUrl}/reset-password?userId=${userId}&code=${code}`, data);
+  ResetPassword (userId: string, code: string, data: any): Observable<any> {
+    return this.http.post<ResponseModel<any>>(
+      `${this.apiUrl}/reset-password?userId=${userId}&code=${code}`,
+      data
+    )
   }
-  Login(userData: any): Observable<any> {
-    return this.http.post<ResponseModel<LoginResponse>>(`${this.apiUrl}/login`, userData);
+  Login (userData: any): Observable<any> {
+    return this.http.post<ResponseModel<LoginResponse>>(
+      `${this.apiUrl}/login`,
+      userData
+    )
   }
-  setSession(loginResponse: LoginResponse) {
-    localStorage.setItem('token', loginResponse.token);
-    localStorage.setItem('expiresOn', new Date(loginResponse.tokenExpiryTime).toISOString());
-    localStorage.setItem('userId', loginResponse.userId);
-    localStorage.setItem('fullName', loginResponse.fullName);
-    localStorage.setItem('userName', loginResponse.userName);
-    localStorage.setItem('role', loginResponse.role);
-  }
-  Logout() {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
-
-    [
-      'token',
+  setSession (loginResponse: LoginResponse) {
+    localStorage.setItem('token', loginResponse.token)
+    localStorage.setItem(
       'expiresOn',
-      'userId',
-      'fullName',
-      'userName',
-      'role'
-    ].forEach((key) => localStorage.removeItem(key));
+      new Date(loginResponse.tokenExpiryTime).toISOString()
+    )
+    localStorage.setItem('userId', loginResponse.userId)
+    localStorage.setItem('fullName', loginResponse.fullName)
+    localStorage.setItem('userName', loginResponse.userName)
+    localStorage.setItem('role', loginResponse.role)
   }
-
-  isAuthenticated(): boolean {
+  Logout () {
     if (typeof localStorage === 'undefined') {
-      return false;
+      return
     }
 
-    const token = localStorage.getItem('token');
-    const expiresOn = localStorage.getItem('expiresOn');
+    ;['token', 'expiresOn', 'userId', 'fullName', 'userName', 'role'].forEach(
+      key => localStorage.removeItem(key)
+    )
+  }
+
+  isAuthenticated (): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false
+    }
+
+    const token = localStorage.getItem('token')
+    const expiresOn = localStorage.getItem('expiresOn')
 
     if (!token) {
-      return false;
+      return false
     }
 
     if (!expiresOn) {
-      return true;
+      return true
     }
 
-    const expiresAt = new Date(expiresOn).getTime();
+    const expiresAt = new Date(expiresOn).getTime()
     if (Number.isNaN(expiresAt)) {
-      return true;
+      return true
     }
 
     if (expiresAt <= Date.now()) {
-      this.Logout();
-      return false;
+      this.Logout()
+      return false
     }
 
-    return true;
+    return true
   }
 
-  getCurrentRole(): string | null {
+  getCurrentRole (): string | null {
     if (typeof localStorage === 'undefined') {
-      return null;
+      return null
     }
 
-    return localStorage.getItem('role');
+    return localStorage.getItem('role')
   }
 
-  hasRole(role: string): boolean {
-    const currentRole = this.getCurrentRole();
-    return currentRole?.toLowerCase() === role.toLowerCase();
+  hasRole (role: string): boolean {
+    const currentRole = this.getCurrentRole()
+    return currentRole?.toLowerCase() === role.toLowerCase()
   }
 
-  getDashboardRouteByRole(role: string | null = this.getCurrentRole()): string {
+  getDashboardRouteByRole (role: string | null = this.getCurrentRole()): string {
+    console.log('Determining dashboard route for role:', role)
     switch (role?.toLowerCase()) {
       case 'admin':
-        return '/admin/dashboard';
+        return '/admin/dashboard'
       case 'seller':
-        return '/seller';
+        return '/seller'
+      case 'marketing':
+        return '/marketing'
+      case 'user':
+        return '/home'
       default:
-        return '/';
+        // return '/';
+        return '/products'
     }
   }
 
-  getSessionUser(): AuthSessionUser | null {
+  getSessionUser (): AuthSessionUser | null {
     if (!this.isAuthenticated() || typeof localStorage === 'undefined') {
-      return null;
+      return null
     }
 
-    const userId = localStorage.getItem('userId');
-    const fullName = localStorage.getItem('fullName');
-    const userName = localStorage.getItem('userName');
-    const role = localStorage.getItem('role');
+    const userId = localStorage.getItem('userId')
+    const fullName = localStorage.getItem('fullName')
+    const userName = localStorage.getItem('userName')
+    const role = localStorage.getItem('role')
 
     if (!userId || !fullName || !userName || !role) {
-      return null;
+      return null
     }
 
     return {
@@ -137,6 +150,6 @@ export class AuthService {
       fullName,
       userName,
       role
-    };
+    }
   }
 }

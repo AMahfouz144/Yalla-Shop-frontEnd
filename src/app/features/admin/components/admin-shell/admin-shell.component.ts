@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService, AuthSessionUser } from '../../../../core/services/auth.service';
 import { AdminNavigationItem } from '../../models/admin.models';
+import { AdminToastService } from '../../services/admin-toast.service';
 
 @Component({
   selector: 'app-admin-shell',
@@ -17,28 +18,28 @@ export class AdminShellComponent {
       helperText: 'Summary and quick insights'
     },
     {
-      label: 'Users',
-      route: '/admin/users',
+      label: 'Customers',
+      route: '/admin/customers',
       icon: 'group',
-      helperText: 'All marketplace accounts'
+      helperText: 'Manage customer accounts'
     },
     {
       label: 'Sellers',
       route: '/admin/sellers',
       icon: 'storefront',
-      helperText: 'Seller approvals and activity'
-    },
-    {
-      label: 'Categories',
-      route: '/admin/categories',
-      icon: 'category',
-      helperText: 'Expandable product catalog'
+      helperText: 'Manage seller accounts'
     },
     {
       label: 'Products',
       route: '/admin/products',
       icon: 'inventory_2',
-      helperText: 'Moderation and status updates'
+      helperText: 'Catalog overview and moderation'
+    },
+    {
+      label: 'Pending Products',
+      route: '/admin/pending-products',
+      icon: 'pending_actions',
+      helperText: 'Approve or reject new products'
     }
   ];
 
@@ -46,7 +47,8 @@ export class AdminShellComponent {
 
   constructor(
     private readonly authService: AuthService,
-    private readonly router: Router
+    private readonly router: Router,
+    readonly toastService: AdminToastService
   ) { }
 
   get currentUser(): AuthSessionUser | null {

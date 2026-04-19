@@ -1,0 +1,65 @@
+<section class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Pending Products</p>
+      <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Approval queue</h2>
+    </div>
+    <button type="button" class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold" (click)="loadPendingProducts()">
+      Reload
+    </button>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div *ngIf="isLoading" class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">Loading pending products...</div>
+    <div *ngIf="!isLoading && errorMessage" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{{ errorMessage }}</div>
+
+    <div *ngIf="!isLoading && !errorMessage" class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead>
+          <tr class="text-left text-sm font-semibold text-slate-500">
+            <th class="pb-4 pr-4">Product Name</th>
+            <th class="pb-4 pr-4">Image</th>
+            <th class="pb-4 pr-4">Price</th>
+            <th class="pb-4 pr-4">Stock</th>
+            <th class="pb-4 pr-4">Category ID</th>
+            <th class="pb-4 pr-4">Seller ID</th>
+            <th class="pb-4 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let product of products; trackBy: trackByProductId">
+            <td class="py-4 pr-4 font-medium text-slate-900">{{ product.productName }}</td>
+            <td class="py-4 pr-4">
+              <img [src]="product.image || 'https://placehold.co/64x64?text=No+Image'" alt="Product" class="h-12 w-12 rounded-lg object-cover" />
+            </td>
+            <td class="py-4 pr-4 text-sm text-slate-700">{{ product.price | number: '1.0-2' }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-700">{{ product.stockQuantity }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-700">{{ product.categoryId }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-700">{{ product.sellerId }}</td>
+            <td class="py-4 text-right">
+              <div class="flex justify-end gap-2">
+                <button
+                  type="button"
+                  class="rounded-xl bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100"
+                  [disabled]="processingId === product.id"
+                  (click)="accept(product)"
+                >
+                  Accept
+                </button>
+                <button
+                  type="button"
+                  class="rounded-xl bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:bg-rose-100"
+                  [disabled]="processingId === product.id"
+                  (click)="reject(product)"
+                >
+                  Reject
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p *ngIf="products.length === 0" class="py-8 text-center text-sm text-slate-500">No pending products found.</p>
+    </div>
+  </div>
+</section>
