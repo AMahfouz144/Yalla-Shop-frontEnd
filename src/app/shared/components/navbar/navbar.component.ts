@@ -12,11 +12,18 @@ export class NavbarComponent {
   constructor(private authService: AuthService, private router: Router) {}
 
   get isLoggedIn(): boolean {
-    // Check if token exists in localStorage
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
     return !!localStorage.getItem('token');
   }
 
   get userName(): string {
+    if (typeof localStorage === 'undefined') {
+      return 'User';
+    }
+
     return localStorage.getItem('fullName') || 'User';
   }
 

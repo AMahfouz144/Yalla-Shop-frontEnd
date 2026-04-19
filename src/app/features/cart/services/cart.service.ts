@@ -12,7 +12,7 @@ export class CartService {
   constructor(private http: HttpClient) {}
 
   getCart(): Observable<ApiWrapper<CartSummary>> {
-    return this.http.get<ApiWrapper<CartSummary>>(`${this.base}/Cart/items`);
+    return this.http.get<ApiWrapper<CartSummary>>(`${this.base}/Cart`);
   }
 
   applyPromo(request: PromoRequest): Observable<ApiWrapper<PromoResult>> {

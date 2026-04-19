@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CheckoutService } from '../../services/checkout.service';
+import { OrderResponse } from '../../../../core/models/order.model';
 
 @Component({
   selector: 'app-order-confirmation',
@@ -8,7 +9,7 @@ import { CheckoutService } from '../../services/checkout.service';
   styleUrls: ['./order-confirmation.component.scss'],
 })
 export class OrderConfirmationComponent implements OnInit {
-  order: Record<string, unknown> | null = null;
+  order: OrderResponse | null = null;
   orderId = '';
 
   trackingSteps = [
@@ -36,14 +37,14 @@ export class OrderConfirmationComponent implements OnInit {
     this.checkoutService.getOrder(this.orderId).subscribe({
       next: (res) => {
         if (res.isSuccess && res.data) {
-          this.order = res.data as Record<string, unknown>;
+          this.order = res.data;
         }
       },
     });
   }
 
   getStepStatus(index: number): 'completed' | 'current' | 'upcoming' {
-    const raw = String(this.order?.['status'] ?? 'Pending');
+    const raw = this.order?.status || 'Pending';
     const statusMap: Record<string, number> = {
       Pending: 0,
       Confirmed: 1,
@@ -65,12 +66,12 @@ export class OrderConfirmationComponent implements OnInit {
   }
 
   get orderItems(): Array<Record<string, unknown>> {
-    const o = this.order;
-    if (!o) {
+    if (!this.order) {
       return [];
     }
-    const items = o['items'] ?? o['orderItems'] ?? o['lineItems'];
-    return Array.isArray(items) ? (items as Array<Record<string, unknown>>) : [];
+    const o = this.order as any;
+    const items = o.items || o.orderItems || o.lineItems;
+    return Array.isArray(items) ? items : [];
   }
 
   formatMoney(value: number): string {
@@ -86,20 +87,20 @@ export class OrderConfirmationComponent implements OnInit {
   }
 
   shippingAddressLines(): string[] {
-    const addr = this.order?.['shippingAddress'] as Record<string, unknown> | undefined;
+    const addr = this.order?.shippingAddress;
     if (!addr) {
-      const label = this.order?.['shippingAddressLabel'];
+      const label = (this.order as any)?.shippingAddressLabel;
       if (typeof label === 'string' && label) {
         return [label];
       }
       return ['Address will appear here when available.'];
     }
     const parts = [
-      addr['street'],
-      addr['city'],
-      addr['state'],
-      addr['country'],
-      addr['zipCode'],
+      addr.street,
+      addr.city,
+      addr.state,
+      addr.country,
+      addr.zipCode,
     ]
       .map((p) => (typeof p === 'string' ? p : ''))
       .filter(Boolean);

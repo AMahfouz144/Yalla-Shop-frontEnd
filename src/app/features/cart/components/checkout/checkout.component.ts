@@ -6,6 +6,7 @@ import {
   PaymentMethod,
 } from '../../../../core/models/order.model';
 import { PromoResult } from '../../../../core/models/promo.model';
+import { ShippingAddressDto } from '../../../../core/models/shipping-address.model';
 import { CartService } from '../../services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
 
@@ -16,8 +17,8 @@ import { CheckoutService } from '../../services/checkout.service';
 })
 export class CheckoutComponent implements OnInit {
   cart: CartSummary | null = null;
-  addresses: Array<Record<string, unknown>> = [];
-  selectedAddressId = '';
+  addresses: ShippingAddressDto[] = [];
+  selectedAddressId: number | '' = '';
   selectedPayment: PaymentMethod = 'Cash';
   promoCode = '';
   promoResult: PromoResult | null = null;
@@ -68,10 +69,10 @@ export class CheckoutComponent implements OnInit {
     this.checkoutService.getAddresses().subscribe({
       next: (res) => {
         if (res.isSuccess && res.data) {
-          this.addresses = res.data as Array<Record<string, unknown>>;
-          const def = this.addresses.find((a) => a['isDefault'] === true);
-          if (def && typeof def['id'] === 'string') {
-            this.selectedAddressId = def['id'];
+          this.addresses = res.data;
+          const def = this.addresses.find((a) => a.isDefault === true);
+          if (def && typeof def.id === 'number') {
+            this.selectedAddressId = def.id;
           }
         }
       },
@@ -136,7 +137,7 @@ export class CheckoutComponent implements OnInit {
 
     this.isLoading = true;
     const request: CheckoutRequest = {
-      shippingAddressId: this.selectedAddressId,
+      shippingAddressId: Number(this.selectedAddressId),
       paymentMethod: this.selectedPayment,
       promoCode: this.promoResult?.code,
       guestEmail: this.isGuestCheckout ? this.guestEmail.trim() : undefined,
@@ -175,9 +176,9 @@ export class CheckoutComponent implements OnInit {
     }).format(value);
   }
 
-  addressLabel(addr: Record<string, unknown>): string {
-    const line1 = String(addr['street'] ?? addr['line1'] ?? '');
-    const city = String(addr['city'] ?? '');
+  addressLabel(addr: ShippingAddressDto): string {
+    const line1 = addr.street || '';
+    const city = addr.city || '';
     return [line1, city].filter(Boolean).join(', ') || 'Address';
   }
 }

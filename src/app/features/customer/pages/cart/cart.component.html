@@ -1,1 +1,158 @@
-<p>cart works!</p>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="flex items-center justify-between mb-8">
+    <h1 class="text-5xl font-extrabold text-gray-900 tracking-tight font-headline">Shopping Bag</h1>
+    <span *ngIf="cart" class="text-gray-500 font-medium px-4 py-1.5 bg-gray-100 rounded-full">{{ cart.itemsCount }} items</span>
+  </div>
+
+  <div *ngIf="loading" class="flex justify-center items-center py-24">
+    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  </div>
+
+  <div *ngIf="!loading && errorMessage" class="bg-red-50 text-red-600 p-4 rounded-xl mb-6 shadow-sm border border-red-100 font-medium">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!loading && cart">
+    
+    <!-- Empty State -->
+    <div *ngIf="!hasItems" class="text-center py-32 bg-white rounded-3xl shadow-sm border border-gray-100">
+      <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+        </svg>
+      </div>
+      <h2 class="text-3xl font-bold text-gray-900 mb-3 font-headline">Your bag is empty</h2>
+      <p class="text-gray-500 mb-10 max-w-sm mx-auto text-lg">Looks like you haven't added anything to your cart yet. Discover our curated collections.</p>
+      <button routerLink="/products" class="bg-primary hover:bg-primary-container text-on-primary px-8 py-4 rounded-xl font-bold transition-all shadow-md hover:shadow-lg transform hover:scale-105">
+        Start Shopping
+      </button>
+    </div>
+
+    <!-- Cart Items & Summary -->
+    <div *ngIf="hasItems" class="flex flex-col xl:flex-row gap-12">
+      
+      <!-- Items List -->
+      <div class="flex-1 w-full">
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <ul role="list" class="divide-y divide-gray-100">
+            <li *ngFor="let item of cart.items" class="p-6 sm:p-8 hover:bg-gray-50/50 transition-colors duration-300">
+              <div class="flex flex-col sm:flex-row sm:items-center">
+                <!-- Image -->
+                <div class="flex-shrink-0 mb-4 sm:mb-0 sm:mr-8 cursor-pointer" [routerLink]="['/products', item.productId]">
+                  <img [src]="item.productImageUrl || 'assets/images/placeholder.png'" 
+                       [alt]="item.productName"
+                       class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl object-cover border border-gray-100 shadow-sm transition-transform hover:scale-105">
+                </div>
+
+                <!-- Details -->
+                <div class="flex-1 flex flex-col justify-between h-full">
+                  <div class="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 class="text-xl font-bold text-gray-900 font-headline leading-tight">
+                        <a [routerLink]="['/products', item.productId]" class="hover:text-primary transition-colors">{{ item.productName }}</a>
+                      </h3>
+                      <div class="mt-3 flex items-center">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wider"
+                              [ngClass]="item.isInStock ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'">
+                          {{ item.isInStock ? 'In stock' : 'Out of stock' }}
+                        </span>
+                      </div>
+                    </div>
+                    <p class="text-xl font-extrabold text-gray-900 ml-4 whitespace-nowrap">{{ formatMoney(item.unitPrice) }}</p>
+                  </div>
+
+                  <div class="flex items-center justify-between mt-6">
+                    <!-- Quantity Controls -->
+                    <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm h-11">
+                      <button (click)="updateQuantity(item, -1)" 
+                              [disabled]="updating || item.quantity <= 1"
+                              class="px-4 h-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 transition-colors focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                      </button>
+                      <span class="px-5 h-full flex items-center border-x border-gray-200 text-base font-bold w-14 justify-center">{{ item.quantity }}</span>
+                      <button (click)="updateQuantity(item, 1)" 
+                              [disabled]="updating"
+                              class="px-4 h-full text-gray-500 hover:bg-gray-100 hover:text-gray-900 disabled:opacity-50 transition-colors focus:outline-none">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                      </button>
+                    </div>
+
+                    <!-- Remove -->
+                    <button type="button" 
+                            (click)="removeItem(item.id)" 
+                            [disabled]="updating"
+                            class="text-sm font-bold text-gray-400 hover:text-red-500 transition-colors flex items-center gap-2 bg-gray-50 hover:bg-red-50 px-4 py-2.5 rounded-lg focus:outline-none">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="w-full xl:w-[420px]">
+        <div class="bg-gray-900 rounded-3xl p-8 shadow-xl text-white sticky top-8">
+          <h2 class="text-2xl font-extrabold mb-8 font-headline">Order Summary</h2>
+
+          <div class="space-y-5 mb-8 text-base text-gray-300 font-medium">
+            <div class="flex justify-between items-center">
+              <span>Subtotal</span>
+              <span class="text-white">{{ formatMoney(cart.subTotal) }}</span>
+            </div>
+            <div class="flex justify-between items-center text-primary" *ngIf="cart.discount > 0 || (promoResult?.discount || 0) > 0">
+              <span>Discount <span *ngIf="promoResult" class="text-xs font-bold uppercase tracking-wider bg-primary/20 px-2 py-0.5 rounded-md ml-1">{{ promoResult.code }}</span></span>
+              <span>-{{ formatMoney(cart.discount || promoResult?.discount || 0) }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+              <span>Shipping</span>
+              <span class="text-white">{{ formatMoney(cart.shippingCost) }}</span>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-700 pt-6 mb-8">
+            <div class="flex justify-between items-end">
+              <span class="text-xl font-bold text-white">Total</span>
+              <span class="text-4xl font-extrabold text-white font-headline">{{ formatMoney(finalTotal) }}</span>
+            </div>
+            <p class="text-sm text-gray-400 mt-2 text-right">Including ALL applicable taxes</p>
+          </div>
+
+          <div class="mb-8">
+            <label for="promoCode" class="block text-sm font-bold text-gray-300 mb-3 uppercase tracking-wide">Discount Code</label>
+            <div class="flex gap-2">
+              <input type="text" id="promoCode" name="promoCode" [(ngModel)]="promoCode"
+                     placeholder="Enter code"
+                     class="flex-1 rounded-xl bg-gray-800 border-gray-700 text-white placeholder-gray-500 focus:border-primary focus:ring-2 focus:ring-primary/20 sm:text-sm px-4 outline-none border py-3 transition-shadow">
+              <button type="button" 
+                      (click)="applyPromo()"
+                      class="bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded-xl font-bold text-sm transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
+                Apply
+              </button>
+            </div>
+            <div class="mt-3 min-h-[20px]">
+              <p *ngIf="promoError" class="text-sm font-bold text-red-400 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> {{ promoError }}</p>
+              <p *ngIf="promoResult && !promoError" class="text-sm font-bold text-emerald-400 flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Code applied successfully!</p>
+            </div>
+          </div>
+
+          <button (click)="goToCheckout()"
+                  [disabled]="updating || !hasItems"
+                  class="w-full bg-primary hover:bg-primary-container text-on-primary font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2 transform active:scale-[0.98] focus:outline-none focus:ring-4 focus:ring-primary/30 text-lg">
+            Proceed to Checkout
+            <svg class="w-6 h-6 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+          </button>
+
+          <div class="mt-8 flex items-center justify-center gap-2 text-gray-400">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+            <span class="text-sm font-medium">Secure Encrypted Checkout</span>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </ng-container>
+</div>

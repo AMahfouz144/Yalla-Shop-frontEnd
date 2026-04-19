@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CheckoutRequest, OrderResponse } from '../../../core/models/order.model';
 import { ApiWrapper } from '../../../core/models/api-wrapper.model';
+import { ShippingAddressDto } from '../../../core/models/shipping-address.model';
 
 @Injectable({ providedIn: 'root' })
 export class CheckoutService {
@@ -10,8 +11,8 @@ export class CheckoutService {
 
   constructor(private http: HttpClient) {}
 
-  getAddresses(): Observable<ApiWrapper<unknown[]>> {
-    return this.http.get<ApiWrapper<unknown[]>>(`${this.base}/Address`);
+  getAddresses(): Observable<ApiWrapper<ShippingAddressDto[]>> {
+    return this.http.get<ApiWrapper<ShippingAddressDto[]>>(`${this.base}/shipping-address`);
   }
 
   placeOrder(
@@ -23,8 +24,8 @@ export class CheckoutService {
     );
   }
 
-  getOrder(orderId: string): Observable<ApiWrapper<unknown>> {
-    return this.http.get<ApiWrapper<unknown>>(
+  getOrder(orderId: string): Observable<ApiWrapper<OrderResponse>> {
+    return this.http.get<ApiWrapper<OrderResponse>>(
       `${this.base}/orders/${orderId}`
     );
   }

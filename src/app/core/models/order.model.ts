@@ -1,7 +1,9 @@
+import { ShippingAddressDto } from './shipping-address.model';
+
 export type PaymentMethod = 'Cash' | 'Stripe' | 'Wallet';
 
 export interface CheckoutRequest {
-  shippingAddressId: string;
+  shippingAddressId: number;
   paymentMethod: PaymentMethod;
   promoCode?: string;
   guestEmail?: string;
@@ -15,5 +17,8 @@ export interface OrderResponse {
   discount: number;
   totalAmount: number;
   status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  shippingAddress: ShippingAddressDto;
   stripeClientSecret?: string;
 }
