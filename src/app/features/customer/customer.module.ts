@@ -4,8 +4,6 @@ import { SharedModule } from '../../shared/shared.module';
 import { CustomerRoutingModule } from './customer-routing.module';
 import { CartModule } from '../cart/cart.module';
 import { HomeComponent } from './pages/home/home.component';
-import { ProductListComponent } from './pages/product-list/product-list.component';
-import { ProductDetailsComponent } from './pages/product-details/product-details.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { OrderHistoryComponent } from './pages/order-history/order-history.component';
 import { ProfileComponent } from './pages/profile/profile.component';
@@ -17,8 +15,6 @@ import { NewsletterComponent } from './components/newsletter/newsletter.componen
 @NgModule({
   declarations: [
     HomeComponent,
-    ProductListComponent,
-    ProductDetailsComponent,
     CartComponent,
     OrderHistoryComponent,
     ProfileComponent,
