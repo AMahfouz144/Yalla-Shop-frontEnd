@@ -18,11 +18,11 @@ const routes: Routes = [
   },
 
   // Unified dashboard feature module
-  {
-    path: 'dashboard',
-    loadChildren: () =>
-      import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
-  },
+  // {
+  //   path: 'dashboard',
+  //   loadChildren: () =>
+  //     import('./features/dashboard/dashboard.module').then(m => m.DashboardModule)
+  // },
 
   // Admin area
   {
