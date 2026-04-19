@@ -11,6 +11,8 @@ import { HeroBannerComponent } from './components/hero-banner/hero-banner.compon
 import { CategoriesGridComponent } from './components/categories-grid/categories-grid.component';
 import { NewArrivalsComponent } from './components/new-arrivals/new-arrivals.component';
 import { NewsletterComponent } from './components/newsletter/newsletter.component';
+import { ChangePasswordComponent } from '../Profile/Pages/ChangePassword/change-password/change-password.component';
+import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +20,8 @@ import { NewsletterComponent } from './components/newsletter/newsletter.componen
     CartComponent,
     OrderHistoryComponent,
     ProfileComponent,
+    UpdateEmailComponent,
+    ChangePasswordComponent,
     HeroBannerComponent,
     CategoriesGridComponent,
     NewArrivalsComponent,

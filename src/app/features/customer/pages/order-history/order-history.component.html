@@ -1,1 +1,70 @@
-<p>order-history works!</p>
+<div class="oh-page">
+
+  <!-- Header -->
+  <div class="oh-header">
+    <h1 class="oh-title">My Orders</h1>
+    <p class="oh-subtitle">Track and review all your past purchases</p>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="isLoading" class="oh-state">
+    <div class="oh-spinner"></div>
+    <p>Loading your orders…</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!isLoading && errorMsg" class="oh-state oh-error">
+    <span class="oh-icon">⚠️</span>
+    <p>{{ errorMsg }}</p>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="!isLoading && !errorMsg && orders.length === 0" class="oh-state oh-empty">
+    <span class="oh-icon">📦</span>
+    <p>You haven't placed any orders yet.</p>
+  </div>
+
+  <!-- Orders List -->
+  <div *ngIf="!isLoading && !errorMsg && orders.length > 0" class="oh-list">
+
+    <div class="oh-card" *ngFor="let order of orders">
+
+      <!-- Card Header -->
+      <div class="oh-card-header">
+        <div>
+          <span class="oh-label">Order #{{ order.id }}</span>
+          <span class="oh-date">{{ order.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</span>
+        </div>
+        <span class="oh-badge" [ngClass]="getStatusClass(order.status)">
+          {{ statusLabels[order.status] }}
+        </span>
+      </div>
+
+      <!-- Items -->
+      <div class="oh-items">
+        <div class="oh-item" *ngFor="let item of order.items">
+          <span class="oh-item-name">{{ item.productName }}</span>
+          <span class="oh-item-qty">x{{ item.quantity }}</span>
+          <span class="oh-item-price">EGP {{ item.price | number: '1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Card Footer -->
+      <div class="oh-card-footer">
+        <div class="oh-meta" *ngIf="order.paymentMethod">
+          <span class="oh-meta-label">Payment:</span>
+          <span>{{ order.paymentMethod }}</span>
+        </div>
+        <div class="oh-meta" *ngIf="order.paymentStatus">
+          <span class="oh-meta-label">Payment Status:</span>
+          <span>{{ order.paymentStatus }}</span>
+        </div>
+        <div class="oh-total">
+          Total: <strong>EGP {{ order.totalPrice | number: '1.2-2' }}</strong>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
