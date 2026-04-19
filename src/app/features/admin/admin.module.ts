@@ -7,12 +7,12 @@ import { ManageUsersComponent } from './pages/manage-users/manage-users.componen
 import { ManageProductsComponent } from './pages/manage-products/manage-products.component';
 import { ManageCategoriesComponent } from './pages/manage-categories/manage-categories.component';
 import { ManageSellersComponent } from './pages/manage-sellers/manage-sellers.component';
-import { DashboardComponent } from '../seller/pages/dashboard/dashboard.component';
+// import { DashboardComponent } from '../seller/pages/dashboard/dashboard.component';
 
 @NgModule({
   declarations: [
     AdminShellComponent,
-    DashboardComponent,
+    // DashboardComponent,
     ManageUsersComponent,
     ManageProductsComponent,
     ManageCategoriesComponent,
