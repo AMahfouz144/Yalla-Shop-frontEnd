@@ -4,6 +4,13 @@ import { Observable } from 'rxjs';
 import { ResponseModel } from '../Interfaces/response-model';
 import { LoginResponse } from '../Interfaces/login-response';
 
+export interface AuthSessionUser {
+  userId: string;
+  fullName: string;
+  userName: string;
+  role: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -35,13 +42,99 @@ export class AuthService {
   }
   setSession(loginResponse: LoginResponse) {
     localStorage.setItem('token', loginResponse.token);
-    localStorage.setItem('expiresOn', loginResponse.tokenExpiryTime.toString());
+    localStorage.setItem('expiresOn', new Date(loginResponse.tokenExpiryTime).toISOString());
     localStorage.setItem('userId', loginResponse.userId);
     localStorage.setItem('fullName', loginResponse.fullName);
     localStorage.setItem('userName', loginResponse.userName);
     localStorage.setItem('role', loginResponse.role);
   }
   Logout() {
-    localStorage.clear();
+    if (typeof localStorage === 'undefined') {
+      return;
+    }
+
+    [
+      'token',
+      'expiresOn',
+      'userId',
+      'fullName',
+      'userName',
+      'role'
+    ].forEach((key) => localStorage.removeItem(key));
+  }
+
+  isAuthenticated(): boolean {
+    if (typeof localStorage === 'undefined') {
+      return false;
+    }
+
+    const token = localStorage.getItem('token');
+    const expiresOn = localStorage.getItem('expiresOn');
+
+    if (!token) {
+      return false;
+    }
+
+    if (!expiresOn) {
+      return true;
+    }
+
+    const expiresAt = new Date(expiresOn).getTime();
+    if (Number.isNaN(expiresAt)) {
+      return true;
+    }
+
+    if (expiresAt <= Date.now()) {
+      this.Logout();
+      return false;
+    }
+
+    return true;
+  }
+
+  getCurrentRole(): string | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    return localStorage.getItem('role');
+  }
+
+  hasRole(role: string): boolean {
+    const currentRole = this.getCurrentRole();
+    return currentRole?.toLowerCase() === role.toLowerCase();
+  }
+
+  getDashboardRouteByRole(role: string | null = this.getCurrentRole()): string {
+    switch (role?.toLowerCase()) {
+      case 'admin':
+        return '/admin/dashboard';
+      case 'seller':
+        return '/seller';
+      default:
+        return '/';
+    }
+  }
+
+  getSessionUser(): AuthSessionUser | null {
+    if (!this.isAuthenticated() || typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    const userId = localStorage.getItem('userId');
+    const fullName = localStorage.getItem('fullName');
+    const userName = localStorage.getItem('userName');
+    const role = localStorage.getItem('role');
+
+    if (!userId || !fullName || !userName || !role) {
+      return null;
+    }
+
+    return {
+      userId,
+      fullName,
+      userName,
+      role
+    };
   }
 }
