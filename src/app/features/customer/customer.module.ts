@@ -2,9 +2,9 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 
 import { CustomerRoutingModule } from './customer-routing.module';
+import { CartModule } from '../cart/cart.module';
 import { HomeComponent } from './pages/home/home.component';
 import { CartComponent } from './pages/cart/cart.component';
-import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { OrderHistoryComponent } from './pages/order-history/order-history.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
@@ -16,7 +16,6 @@ import { NewsletterComponent } from './components/newsletter/newsletter.componen
   declarations: [
     HomeComponent,
     CartComponent,
-    CheckoutComponent,
     OrderHistoryComponent,
     ProfileComponent,
     HeroBannerComponent,
@@ -26,7 +25,8 @@ import { NewsletterComponent } from './components/newsletter/newsletter.componen
   ],
   imports: [
     SharedModule,
-    CustomerRoutingModule
+    CustomerRoutingModule,
+    CartModule,
   ]
 })
 export class CustomerModule { }
