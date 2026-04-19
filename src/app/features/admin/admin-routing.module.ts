@@ -7,7 +7,7 @@ import { ManageUsersComponent } from './pages/manage-users/manage-users.componen
 import { ManageProductsComponent } from './pages/manage-products/manage-products.component';
 import { ManageCategoriesComponent } from './pages/manage-categories/manage-categories.component';
 import { ManageSellersComponent } from './pages/manage-sellers/manage-sellers.component';
-import { DashboardComponent } from '../seller/pages/dashboard/dashboard.component';
+// import { DashboardComponent } from '../seller/pages/dashboard/dashboard.component';
 
 const routes: Routes = [
   {
@@ -16,7 +16,7 @@ const routes: Routes = [
     canActivate: [authGuard, adminGuard],
     canActivateChild: [authGuard, adminGuard],
     children: [
-      { path: 'dashboard', component: DashboardComponent },
+      // { path: 'dashboard', component: DashboardComponent },
       { path: 'users', component: ManageUsersComponent },
       { path: 'sellers', component: ManageSellersComponent },
       { path: 'categories', component: ManageCategoriesComponent },
