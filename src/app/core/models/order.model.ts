@@ -1,28 +1,24 @@
-export interface IOrder {
-  _id: string;
-  user: string;           // customer user ID
-  items: IOrderItem[];
-  totalPrice: number;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  shippingAddress: {
-    street: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
-  };
-  paymentMethod: string;
-  isPaid: boolean;
-  paidAt?: Date;
-  createdAt?: Date;
-  updatedAt?: Date;
+import { ShippingAddressDto } from './shipping-address.model';
+
+export type PaymentMethod = 'Cash' | 'Stripe' | 'Wallet';
+
+export interface CheckoutRequest {
+  shippingAddressId: number;
+  paymentMethod: PaymentMethod;
+  promoCode?: string;
+  guestEmail?: string;
 }
 
-export interface IOrderItem {
-  product: string;        // product ID
-  name: string;
-  price: number;
-  quantity: number;
-  image: string;
-  seller: string;         // seller user ID
+export interface OrderResponse {
+  orderId: string;
+  orderNumber: string;
+  subTotal: number;
+  shippingCost: number;
+  discount: number;
+  totalAmount: number;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  shippingAddress: ShippingAddressDto;
+  stripeClientSecret?: string;
 }

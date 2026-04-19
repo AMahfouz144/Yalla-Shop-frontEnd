@@ -2,11 +2,9 @@ import { NgModule } from '@angular/core';
 import { SharedModule } from '../../shared/shared.module';
 
 import { CustomerRoutingModule } from './customer-routing.module';
+import { CartModule } from '../cart/cart.module';
 import { HomeComponent } from './pages/home/home.component';
-import { ProductListComponent } from './pages/product-list/product-list.component';
-import { ProductDetailsComponent } from './pages/product-details/product-details.component';
 import { CartComponent } from './pages/cart/cart.component';
-import { CheckoutComponent } from './pages/checkout/checkout.component';
 import { OrderHistoryComponent } from './pages/order-history/order-history.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
@@ -19,10 +17,7 @@ import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/
 @NgModule({
   declarations: [
     HomeComponent,
-    ProductListComponent,
-    ProductDetailsComponent,
     CartComponent,
-    CheckoutComponent,
     OrderHistoryComponent,
     ProfileComponent,
     UpdateEmailComponent,
@@ -34,7 +29,8 @@ import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/
   ],
   imports: [
     SharedModule,
-    CustomerRoutingModule
+    CustomerRoutingModule,
+    CartModule,
   ]
 })
 export class CustomerModule { }

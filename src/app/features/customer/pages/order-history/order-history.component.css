@@ -1,0 +1,178 @@
+/* ================================================================
+   Order History Page — Customer
+   ================================================================ */
+
+   .oh-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* ---------- Header ---------- */
+  .oh-header {
+    margin-bottom: 2.5rem;
+  }
+  .oh-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 .4rem;
+  }
+  .oh-subtitle {
+    color: #6b7280;
+    margin: 0;
+    font-size: .95rem;
+  }
+
+  /* ---------- States (loading / error / empty) ---------- */
+  .oh-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 4rem 1rem;
+    color: #6b7280;
+    font-size: 1rem;
+    text-align: center;
+  }
+  .oh-icon { font-size: 3rem; }
+  .oh-error { color: #dc2626; }
+
+  /* Spinner */
+  .oh-spinner {
+    width: 44px;
+    height: 44px;
+    border: 4px solid #e5e7eb;
+    border-top-color: #2563eb;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- Order Card ---------- */
+  .oh-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .oh-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    transition: box-shadow .2s;
+  }
+  .oh-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.10); }
+
+  /* Header row */
+  .oh-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .oh-label {
+    font-weight: 600;
+    color: #111827;
+    font-size: 1rem;
+    display: block;
+  }
+  .oh-date {
+    font-size: .8rem;
+    color: #9ca3af;
+    display: block;
+    margin-top: 2px;
+  }
+
+  /* Status badge */
+  .oh-badge {
+    padding: .3rem .85rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    white-space: nowrap;
+  }
+  .badge-pending    { background: #fef9c3; color: #854d0e; }
+  .badge-processing { background: #dbeafe; color: #1d4ed8; }
+  .badge-shipped    { background: #ede9fe; color: #6d28d9; }
+  .badge-delivered  { background: #dcfce7; color: #15803d; }
+  .badge-cancelled  { background: #fee2e2; color: #b91c1c; }
+
+  /* Items */
+  .oh-items {
+    padding: .75rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+  .oh-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    font-size: .9rem;
+    color: #374151;
+  }
+  .oh-item-name {
+    flex: 1;
+    font-weight: 500;
+  }
+  .oh-item-qty {
+    background: #f3f4f6;
+    padding: .2rem .6rem;
+    border-radius: 6px;
+    font-size: .8rem;
+    color: #6b7280;
+  }
+  .oh-item-price {
+    font-weight: 600;
+    color: #111827;
+    min-width: 90px;
+    text-align: right;
+  }
+
+  /* Footer */
+  .oh-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+    padding: .9rem 1.25rem;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+  }
+  .oh-meta {
+    display: flex;
+    gap: .4rem;
+    font-size: .85rem;
+    color: #6b7280;
+  }
+  .oh-meta-label { font-weight: 500; color: #374151; }
+
+  .oh-total {
+    font-size: 1rem;
+    color: #111827;
+    margin-left: auto;
+  }
+  .oh-total strong {
+    color: #2563eb;
+    font-size: 1.1rem;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 480px) {
+    .oh-title { font-size: 1.5rem; }
+    .oh-card-header { flex-direction: column; align-items: flex-start; }
+    .oh-card-footer { flex-direction: column; }
+    .oh-total { margin-left: 0; }
+    .oh-item-price { min-width: unset; }
+  }

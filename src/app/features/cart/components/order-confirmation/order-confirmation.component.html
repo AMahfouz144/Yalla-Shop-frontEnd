@@ -1,0 +1,150 @@
+<div class="min-h-screen bg-gray-50 pb-16 pt-24 px-4 md:px-8">
+  <div class="max-w-5xl mx-auto">
+    <!-- Section A -->
+    <header class="text-center mb-12">
+      <div
+        class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6"
+      >
+        <span class="material-symbols-outlined text-4xl text-green-600">check_circle</span>
+      </div>
+      <h1 class="text-3xl font-bold text-gray-800 font-headline">Order Confirmed!</h1>
+      <p class="text-gray-500 mt-2">Your order is on its way.</p>
+      <p *ngIf="order?.orderNumber" class="mt-4 inline-block font-mono bg-gray-100 px-3 py-1 rounded text-gray-800 text-sm">
+        #{{ order?.orderNumber }}
+      </p>
+    </header>
+
+    <!-- Section B — tracking -->
+    <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-8">
+      <h2 class="font-headline font-bold text-gray-800 mb-6 text-center md:text-left">Tracking</h2>
+      <div class="flex items-center justify-between max-w-3xl mx-auto gap-1 md:gap-2">
+        <ng-container *ngFor="let step of trackingSteps; let i = index; let last = last">
+          <div class="flex flex-col items-center flex-1 min-w-0">
+            <div
+              *ngIf="getStepStatus(i) === 'completed'"
+              class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0"
+            >
+              <span class="material-symbols-outlined text-lg">check</span>
+            </div>
+            <div
+              *ngIf="getStepStatus(i) === 'current'"
+              class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white shrink-0"
+            >
+              <span class="material-symbols-outlined text-lg">{{ step.icon }}</span>
+            </div>
+            <div
+              *ngIf="getStepStatus(i) === 'upcoming'"
+              class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 shrink-0"
+            >
+              <span class="material-symbols-outlined text-lg opacity-50">{{ step.icon }}</span>
+            </div>
+            <span class="text-xs md:text-sm font-medium text-gray-700 mt-2 text-center hidden sm:block">{{
+              step.label
+            }}</span>
+          </div>
+          <div
+            *ngIf="!last"
+            class="flex-1 h-0.5 min-w-[8px] -mt-6 sm:-mt-8 self-start mx-0.5 rounded"
+            [class.bg-blue-600]="getStepStatus(i) === 'completed'"
+            [class.bg-gray-200]="getStepStatus(i) !== 'completed'"
+          ></div>
+        </ng-container>
+      </div>
+      <div class="flex justify-between sm:hidden mt-4 text-[10px] text-gray-600 px-1">
+        <span *ngFor="let step of trackingSteps" class="flex-1 text-center">{{ step.label }}</span>
+      </div>
+    </section>
+
+    <!-- Section C -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-headline font-bold text-gray-800 mb-4">Destination</h2>
+        <p class="text-sm font-semibold text-gray-700 mb-2">Ship to</p>
+        <address class="not-italic text-gray-600 text-sm space-y-1">
+          <p *ngFor="let line of shippingAddressLines()">{{ line }}</p>
+        </address>
+      </section>
+
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <h2 class="font-headline font-bold text-gray-800 mb-4">Items</h2>
+        <ul class="space-y-4" *ngIf="orderItems.length">
+          <li *ngFor="let it of orderItems" class="flex gap-3">
+            <img
+              *ngIf="it['productImageUrl'] || it['image'] || it['imageUrl']"
+              [src]="it['productImageUrl'] || it['image'] || it['imageUrl']"
+              [alt]="(it['productName'] || it['name'] || 'Item') + ''"
+              class="w-14 h-14 rounded-lg object-cover bg-gray-100 shrink-0"
+            />
+            <div class="flex-1 min-w-0">
+              <p class="font-medium text-gray-800 truncate">
+                {{ it['productName'] || it['name'] || 'Item' }}
+              </p>
+              <p class="text-sm text-gray-500">Qty {{ it['quantity'] ?? 1 }}</p>
+            </div>
+            <p class="text-gray-800 font-medium shrink-0">
+              {{
+                formatMoney(
+                  num(it['totalPrice'] ?? it['lineTotal'] ?? it['price'], 0)
+                )
+              }}
+            </p>
+          </li>
+        </ul>
+        <p *ngIf="!orderItems.length" class="text-gray-500 text-sm">No line items in this response.</p>
+      </section>
+    </div>
+
+    <!-- Section D -->
+    <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8" *ngIf="order">
+      <h2 class="font-headline font-bold text-gray-800 mb-4">Price summary</h2>
+      <div class="space-y-2 text-sm max-w-md">
+        <div class="flex justify-between text-gray-600">
+          <span>Subtotal</span>
+          <span class="text-gray-800 font-medium">{{
+            formatMoney(num(order?.subTotal, 0))
+          }}</span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+          <span>Shipping</span>
+          <span class="text-gray-800 font-medium">{{
+            formatMoney(num(order?.shippingCost, 0))
+          }}</span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+          <span>Discount</span>
+          <span class="text-gray-800 font-medium">{{
+            formatMoney(num(order?.discount, 0))
+          }}</span>
+        </div>
+        <div class="flex justify-between text-lg font-bold text-gray-800 pt-2 border-t border-gray-100">
+          <span>Total</span>
+          <span class="text-blue-600">{{
+            formatMoney(num(order?.totalAmount, 0))
+          }}</span>
+        </div>
+      </div>
+      <a
+        [routerLink]="['/orders', orderId]"
+        class="inline-block mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700"
+      >
+        View full receipt
+      </a>
+    </section>
+
+    <!-- Section E -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <a
+        routerLink="/products"
+        class="inline-flex justify-center items-center px-6 py-3 rounded-xl border-2 border-gray-200 text-gray-800 font-semibold hover:border-blue-300 transition-colors"
+      >
+        Continue shopping
+      </a>
+      <a
+        [routerLink]="['/orders', orderId]"
+        class="inline-flex justify-center items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors"
+      >
+        Track order
+      </a>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,7 @@ import { LoadingSpinnerComponent } from './components/loading-spinner/loading-sp
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
 import { CurrencyEgpPipe } from './pipes/currency-egp.pipe';
+import { UsdPricePipe } from './pipes/usd-price.pipe';
 import { HighlightDirective } from './directives/highlight.directive';
 
 @NgModule({
@@ -23,6 +24,7 @@ import { HighlightDirective } from './directives/highlight.directive';
     ConfirmDialogComponent,
     TruncatePipe,
     CurrencyEgpPipe,
+    UsdPricePipe,
     HighlightDirective
   ],
   imports: [
@@ -47,6 +49,7 @@ import { HighlightDirective } from './directives/highlight.directive';
     ConfirmDialogComponent,
     TruncatePipe,
     CurrencyEgpPipe,
+    UsdPricePipe,
     HighlightDirective
   ]
 })

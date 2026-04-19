@@ -1,1 +1,110 @@
-<p>dashboard works!</p>
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 rounded-[2rem] bg-slate-950 px-6 py-7 text-white shadow-xl lg:flex-row lg:items-end lg:justify-between">
+    <div class="max-w-3xl">
+      <p class="text-sm uppercase tracking-[0.22em] text-slate-400">Admin Dashboard</p>
+      <h2 class="mt-3 font-headline text-3xl font-extrabold tracking-tight sm:text-4xl">Marketplace summary with moderation visibility.</h2>
+      <p class="mt-3 text-sm leading-6 text-slate-300 sm:text-base">
+        This view gives admins a fast count of users, sellers, categories, and products, with direct access to the approval queues that need attention.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="inline-flex items-center justify-center gap-2 self-start rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-slate-100"
+      (click)="loadSummary()"
+    >
+      <span class="material-symbols-outlined text-[18px]">refresh</span>
+      Refresh Summary
+    </button>
+  </div>
+
+  <div *ngIf="isLoading" class="rounded-[1.75rem] border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-slate-500">
+    Loading dashboard summary...
+  </div>
+
+  <div *ngIf="!isLoading && errorMessage" class="rounded-[1.75rem] border border-rose-200 bg-rose-50 px-6 py-5 text-sm text-rose-700">
+    {{ errorMessage }}
+  </div>
+
+  <ng-container *ngIf="!isLoading && summary">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <article
+        *ngFor="let card of statCards; trackBy: trackByLabel"
+        class="rounded-[1.75rem] bg-white p-5 shadow-sm ring-1 ring-slate-200"
+      >
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-sm font-medium text-slate-500">{{ card.label }}</p>
+            <p class="mt-3 font-headline text-4xl font-extrabold tracking-tight text-slate-950">{{ card.value }}</p>
+            <p class="mt-2 text-sm text-slate-500">{{ card.helperText }}</p>
+          </div>
+
+          <div class="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-white shadow-lg" [ngClass]="card.accent">
+            <span class="material-symbols-outlined">{{ card.icon }}</span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <div class="grid gap-4 xl:grid-cols-[1.4fr_1fr]">
+      <section class="rounded-[1.75rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="text-sm uppercase tracking-[0.18em] text-slate-400">Immediate attention</p>
+            <h3 class="mt-2 font-headline text-2xl font-extrabold tracking-tight text-slate-950">Moderation queues</h3>
+          </div>
+          <span class="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-800">
+            {{ summary.pendingProducts }} pending
+          </span>
+        </div>
+
+        <div class="mt-5 grid gap-4 md:grid-cols-2">
+          <a
+            routerLink="/admin/products"
+            class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition hover:border-slate-300 hover:bg-white"
+          >
+            <p class="text-sm font-medium text-slate-500">Products awaiting review</p>
+            <p class="mt-3 font-headline text-3xl font-extrabold tracking-tight text-slate-950">{{ summary.pendingProducts }}</p>
+            <p class="mt-2 text-sm text-slate-500">Approve, reject, or delete pending catalog items.</p>
+          </a>
+
+          <a
+            routerLink="/admin/sellers"
+            class="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5 transition hover:border-slate-300 hover:bg-white"
+          >
+            <p class="text-sm font-medium text-slate-500">Seller approval requests</p>
+            <p class="mt-3 font-headline text-3xl font-extrabold tracking-tight text-slate-950">{{ summary.pendingSellers }}</p>
+            <p class="mt-2 text-sm text-slate-500">Review pending sellers before they can operate fully.</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="rounded-[1.75rem] bg-white p-6 shadow-sm ring-1 ring-slate-200">
+        <p class="text-sm uppercase tracking-[0.18em] text-slate-400">System health</p>
+        <h3 class="mt-2 font-headline text-2xl font-extrabold tracking-tight text-slate-950">Account activity snapshot</h3>
+
+        <div class="mt-5 space-y-4">
+          <div class="rounded-[1.5rem] bg-slate-50 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm font-medium text-slate-500">Disabled users</span>
+              <span class="rounded-full bg-rose-100 px-3 py-1 text-sm font-semibold text-rose-700">
+                {{ summary.disabledUsers }}
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-slate-500">Soft-deleted accounts remain in the system and can be re-enabled from the users page.</p>
+          </div>
+
+          <div class="rounded-[1.5rem] bg-slate-50 p-4">
+            <div class="flex items-center justify-between gap-4">
+              <span class="text-sm font-medium text-slate-500">Catalog coverage</span>
+              <span class="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+                {{ summary.totalCategories }} categories
+              </span>
+            </div>
+            <p class="mt-2 text-sm text-slate-500">Use the categories view to expand each category and moderate its products in context.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </ng-container>
+</section>

@@ -1,10 +1,15 @@
-<!-- Use content wrapper that accounts for fixed header offset -->
-<div class="min-h-screen flex flex-col">
-  <app-navbar></app-navbar>
+<ng-container *ngIf="isDashboardLayout; else storefrontLayout">
+  <router-outlet></router-outlet>
+</ng-container>
 
-  <main class="pt-20 flex-1">
-    <router-outlet></router-outlet>
-  </main>
+<ng-template #storefrontLayout>
+  <div class="min-h-screen flex flex-col">
+    <app-navbar></app-navbar>
 
-  <app-footer></app-footer>
-</div>
+    <main class="pt-20 flex-1">
+      <router-outlet></router-outlet>
+    </main>
+
+    <app-footer></app-footer>
+  </div>
+</ng-template>
