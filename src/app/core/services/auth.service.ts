@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { API_BASE_URL } from '../config/api-base';
 import { ResponseModel } from '../Interfaces/response-model';
 import { LoginResponse } from '../Interfaces/login-response';
 
@@ -15,7 +16,8 @@ export interface AuthSessionUser {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'https://yallashop-api.runasp.net/api/auth';
+  /** Matches `api/Auth` on the server (see Swagger). */
+  private readonly apiUrl = `${API_BASE_URL}/Auth`;
 
   constructor(private http: HttpClient) { }
 

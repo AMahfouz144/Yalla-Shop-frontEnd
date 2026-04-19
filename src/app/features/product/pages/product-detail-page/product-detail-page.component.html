@@ -1,0 +1,64 @@
+<main class="pt-32 pb-24 px-4 md:px-8 max-w-7xl mx-auto flex flex-col gap-12 bg-background text-on-background font-body min-h-screen">
+  <p *ngIf="error" class="text-error text-sm">{{ error }}</p>
+  <p *ngIf="loading" class="text-on-surface-variant text-sm">Loading…</p>
+
+  <ng-container *ngIf="!loading && product as p">
+    <p *ngIf="cartMessage" class="text-primary text-sm">{{ cartMessage }}</p>
+    <p *ngIf="cartError" class="text-error text-sm">{{ cartError }}</p>
+
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        <div class="aspect-[4/5] md:aspect-square bg-surface-container rounded-xl overflow-hidden relative group">
+          <img
+            *ngIf="pictureSrc() as src"
+            [alt]="p.name"
+            class="w-full h-full object-cover"
+            [src]="src"
+            (error)="onHeroImageError()"
+          />
+          <div
+            *ngIf="!pictureSrc()"
+            class="w-full h-full flex items-center justify-center text-on-surface-variant text-sm"
+          >
+            No image
+          </div>
+        </div>
+      </div>
+
+      <div class="lg:col-span-5 flex flex-col pt-4 lg:pt-12">
+        <p class="text-sm font-medium text-on-surface-variant mb-2" *ngIf="category as cat">
+          {{ cat.name }}
+        </p>
+
+        <h1 class="text-4xl md:text-5xl font-headline font-bold tracking-tight text-on-background mb-4 leading-tight">
+          {{ p.name }}
+        </h1>
+        <p class="text-2xl font-body font-semibold text-on-background mb-6">{{ p.price | usdPrice }}</p>
+
+        <p class="text-base text-on-surface-variant leading-relaxed mb-10 font-body">
+          {{ p.description }}
+        </p>
+
+        <div class="space-y-3 mb-10 text-sm text-on-surface-variant font-body">
+          <div *ngFor="let row of extraFields" class="flex justify-between gap-4 border-b border-outline-variant/10 pb-2">
+            <span class="font-semibold text-on-background">{{ row.key }}</span>
+            <span class="text-right">{{ row.value }}</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-4 mt-auto">
+          <button
+            type="button"
+            class="flex-1 bg-gradient-to-br from-primary to-primary-container text-on-primary py-4 px-6 rounded font-body text-sm font-semibold tracking-wide hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2 shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]"
+            (click)="addToCart()"
+          >
+            <span class="material-symbols-outlined text-lg">local_mall</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <div class="h-px w-full bg-outline-variant/20"></div>
+  </ng-container>
+</main>
