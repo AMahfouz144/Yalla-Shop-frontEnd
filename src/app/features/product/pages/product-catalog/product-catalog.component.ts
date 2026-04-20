@@ -50,6 +50,7 @@ export class ProductCatalogComponent implements OnInit {
   appliedCreatedTo = '';
   appliedSortBy = '';
   appliedSortOrder: 'asc' | 'desc' = 'asc';
+  readonly loadingSkeletons = Array.from({ length: 8 });
 
   constructor(
     private readonly router: Router,
@@ -145,6 +146,90 @@ export class ProductCatalogComponent implements OnInit {
   setCategoryChip(name: string): void {
     this.appliedCategoryName = name;
     this.draftCategoryName = name;
+    this.loadProducts();
+  }
+
+  get activeFilters(): Array<{ key: string; label: string }> {
+    const filters: Array<{ key: string; label: string }> = [];
+
+    if (this.appliedName) {
+      filters.push({ key: 'name', label: `Name: ${this.appliedName}` });
+    }
+    if (this.appliedDescription) {
+      filters.push({ key: 'description', label: `Description: ${this.appliedDescription}` });
+    }
+    if (this.appliedMinPrice != null) {
+      filters.push({ key: 'minPrice', label: `Min price: ${this.appliedMinPrice}` });
+    }
+    if (this.appliedMaxPrice != null) {
+      filters.push({ key: 'maxPrice', label: `Max price: ${this.appliedMaxPrice}` });
+    }
+    if (this.appliedStockQuantity != null) {
+      filters.push({ key: 'stockQuantity', label: `Min stock: ${this.appliedStockQuantity}` });
+    }
+    if (this.appliedCategoryName) {
+      filters.push({ key: 'categoryName', label: `Category: ${this.appliedCategoryName}` });
+    }
+    if (this.appliedCreatedFrom) {
+      filters.push({ key: 'createdFrom', label: `From: ${this.appliedCreatedFrom}` });
+    }
+    if (this.appliedCreatedTo) {
+      filters.push({ key: 'createdTo', label: `To: ${this.appliedCreatedTo}` });
+    }
+    if (this.appliedSortBy) {
+      filters.push({
+        key: 'sort',
+        label: `Sort: ${this.appliedSortBy} (${this.appliedSortOrder})`
+      });
+    }
+
+    return filters;
+  }
+
+  removeActiveFilter(key: string): void {
+    switch (key) {
+      case 'name':
+        this.appliedName = '';
+        this.draftName = '';
+        break;
+      case 'description':
+        this.appliedDescription = '';
+        this.draftDescription = '';
+        break;
+      case 'minPrice':
+        this.appliedMinPrice = null;
+        this.draftMinPrice = null;
+        break;
+      case 'maxPrice':
+        this.appliedMaxPrice = null;
+        this.draftMaxPrice = null;
+        break;
+      case 'stockQuantity':
+        this.appliedStockQuantity = null;
+        this.draftStockQuantity = null;
+        break;
+      case 'categoryName':
+        this.appliedCategoryName = '';
+        this.draftCategoryName = '';
+        break;
+      case 'createdFrom':
+        this.appliedCreatedFrom = '';
+        this.draftCreatedFrom = '';
+        break;
+      case 'createdTo':
+        this.appliedCreatedTo = '';
+        this.draftCreatedTo = '';
+        break;
+      case 'sort':
+        this.appliedSortBy = '';
+        this.appliedSortOrder = 'asc';
+        this.draftSortBy = '';
+        this.draftSortOrder = 'asc';
+        break;
+      default:
+        break;
+    }
+
     this.loadProducts();
   }
 

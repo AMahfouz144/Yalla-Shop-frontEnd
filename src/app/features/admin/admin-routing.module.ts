@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { adminGuard } from '../../core/guards/admin.guard';
 import { authGuard } from '../../core/guards/auth.guard';
+import { roleChildGuard, roleGuard } from '../../core/guards/role.guard';
 import { AdminShellComponent } from './components/admin-shell/admin-shell.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ManageCustomersComponent } from './pages/manage-customers/manage-customers.component';
@@ -13,14 +13,15 @@ const routes: Routes = [
   {
     path: '',
     component: AdminShellComponent,
-    canActivate: [authGuard, adminGuard],
-    canActivateChild: [authGuard, adminGuard],
+    canActivate: [authGuard, roleGuard],
+    canActivateChild: [authGuard, roleChildGuard],
+    data: { roles: ['Admin'] },
     children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'customers', component: ManageCustomersComponent },
-      { path: 'sellers', component: ManageSellersComponent },
-      { path: 'products', component: ManageProductsComponent },
-      { path: 'pending-products', component: PendingProductsComponent },
+      { path: 'dashboard', component: DashboardComponent, data: { roles: ['Admin'] } },
+      { path: 'customers', component: ManageCustomersComponent, data: { roles: ['Admin'] } },
+      { path: 'sellers', component: ManageSellersComponent, data: { roles: ['Admin'] } },
+      { path: 'products', component: ManageProductsComponent, data: { roles: ['Admin'] } },
+      { path: 'pending-products', component: PendingProductsComponent, data: { roles: ['Admin'] } },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   }
