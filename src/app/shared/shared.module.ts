@@ -14,6 +14,7 @@ import { TruncatePipe } from './pipes/truncate.pipe';
 import { CurrencyEgpPipe } from './pipes/currency-egp.pipe';
 import { UsdPricePipe } from './pipes/usd-price.pipe';
 import { HighlightDirective } from './directives/highlight.directive';
+import { BackButtonComponent } from './components/back-button/back-button.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { HighlightDirective } from './directives/highlight.directive';
     TruncatePipe,
     CurrencyEgpPipe,
     UsdPricePipe,
-    HighlightDirective
+    HighlightDirective,
+    BackButtonComponent
   ],
   imports: [
     CommonModule,
@@ -53,7 +55,8 @@ import { HighlightDirective } from './directives/highlight.directive';
     TruncatePipe,
     CurrencyEgpPipe,
     UsdPricePipe,
-    HighlightDirective
+    HighlightDirective,
+    BackButtonComponent
   ]
 })
 export class SharedModule { }

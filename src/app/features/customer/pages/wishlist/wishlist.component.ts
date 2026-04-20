@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../../../core/services/auth.service';
 import { WishlistServiceService } from '../../../../core/services/wishlist-service.service';
 import { WhislistResponse } from '../../../../core/models/whislist-response';
+import { CartService } from '../../../../core/services/cart.service';
+import { CartAnimationService } from '../../../../core/services/cart-animation.service';
 
 @Component({
   selector: 'app-wishlist',
@@ -16,7 +18,9 @@ export class WishlistComponent implements OnInit {
 
   constructor(
     private wishlistService: WishlistServiceService,
-    private authService: AuthService
+    private authService: AuthService,
+    private cartService: CartService,
+    private cartAnimationService: CartAnimationService
   ) {}
 
   ngOnInit(): void {
@@ -63,29 +67,54 @@ export class WishlistComponent implements OnInit {
     });
   }
 
-  removeFromWishlist(item: WhislistResponse): void {
+  addToCart(item: WhislistResponse, event: MouseEvent): void {
+    event.stopPropagation();
+    
+    // Animate item to cart
+    const imgUrl = item.product.picture || 'assets/images/placeholder.png';
+    this.cartAnimationService.animateToCart(event, imgUrl);
+
+    this.loading = true; // Briefly disable buttons
+    
+    this.cartService.addItem(item.product.id, 1).subscribe({
+      next: () => {
+        this.showMessage(`Added “${item.product.name}” to cart.`);
+        // Remove from wishlist automatically
+        this.removeFromWishlist(item, true);
+      },
+      error: (err: any) => {
+        this.handleError(err);
+      }
+    });
+  }
+
+  removeFromWishlist(item: WhislistResponse, silent = false): void {
     if (!this.token) {
-      this.showError('Unable to remove item because you are not authenticated.');
+      if (!silent) this.showError('Unable to remove item because you are not authenticated.');
       return;
     }
 
-    this.loading = true;
-    this.message = '';
+    if (!silent) {
+      this.loading = true;
+      this.message = '';
+    }
 
     this.wishlistService.removeFromWishlist(this.token, item.product.id).subscribe({
       next: (result) => {
-        this.loading = false;
+        if (!silent) this.loading = false;
         if (result.isSuccess) {
           this.wishlistItems = this.wishlistItems.filter((entry) => entry.product.id !== item.product.id);
-          this.showMessage(result.message || 'Item removed from your wishlist successfully.');
+          if (!silent) this.showMessage(result.message || 'Item removed from your wishlist successfully.');
           if (this.wishlistItems.length === 0) {
             this.showMessage('Your wishlist is now empty. Keep browsing to save favorites.');
           }
         } else {
-          this.showError(result.message || 'Failed to remove the item from your wishlist.');
+          if (!silent) this.showError(result.message || 'Failed to remove the item from your wishlist.');
         }
       },
-      error: (error) => this.handleError(error)
+      error: (error) => {
+        if (!silent) this.handleError(error);
+      }
     });
   }
 

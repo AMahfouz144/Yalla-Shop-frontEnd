@@ -4,7 +4,11 @@
       <nav class="flex items-center gap-3 overflow-x-auto no-scrollbar">
         <button
           type="button"
-          class="bg-primary text-on-primary font-label text-sm font-semibold px-5 py-2 rounded-full flex-shrink-0 transition-all shadow-[0_4px_16px_-4px_rgba(0,87,189,0.3)]"
+          [ngClass]="{
+            'bg-primary text-on-primary font-bold shadow-md': !appliedCategoryName,
+            'bg-surface-container text-on-surface hover:bg-surface-container-high': appliedCategoryName
+          }"
+          class="font-label text-sm px-5 py-2 rounded-full flex-shrink-0 transition-colors"
           (click)="resetFilters()"
         >
           All
@@ -12,7 +16,11 @@
         <button
           *ngFor="let c of categories"
           type="button"
-          class="bg-surface-container text-on-surface hover:bg-surface-container-high font-label text-sm font-medium px-5 py-2 rounded-full flex-shrink-0 transition-colors"
+          [ngClass]="{
+            'bg-primary text-on-primary font-bold shadow-md': appliedCategoryName === c.name,
+            'bg-surface-container text-on-surface hover:bg-surface-container-high': appliedCategoryName !== c.name
+          }"
+          class="font-label text-sm px-5 py-2 rounded-full flex-shrink-0 transition-colors"
           (click)="setCategoryChip(c.name)"
         >
           {{ c.name }}

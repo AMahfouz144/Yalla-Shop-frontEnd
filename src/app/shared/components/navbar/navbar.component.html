@@ -55,8 +55,14 @@
     </div> -->
 
     <div class="flex items-center gap-2 sm:gap-3">
-      <a routerLink="/cart" class="icon-button" aria-label="Cart">
+      <!-- Add ID "cartIcon" to act as target for animation service -->
+      <!-- Add animate-bounce class conditionally -->
+      <a routerLink="/cart" id="cartIcon" class="icon-button relative" aria-label="Cart"
+         [ngClass]="{'animate-bounce': isBouncing}">
         <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+        <span *ngIf="(cartCount$ | async) as count" class="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] font-bold px-[5px] py-[1px] rounded-full">
+          {{ count }}
+        </span>
       </a>
       <a *ngIf="isCustomer" routerLink="/orders" class="icon-button" aria-label="My Orders" title="My Orders">
         <span class="material-symbols-outlined text-[20px]">receipt_long</span>

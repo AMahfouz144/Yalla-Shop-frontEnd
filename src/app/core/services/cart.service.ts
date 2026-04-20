@@ -13,6 +13,10 @@ export class CartService {
   /** Observable of the current cart state */
   readonly cart$ = this.cartSubject.asObservable();
 
+  /** Observable of the current cart items count */
+  private readonly cartCountSubject = new BehaviorSubject<number>(0);
+  readonly cartCount$ = this.cartCountSubject.asObservable();
+
   private readonly base = `${API_BASE_URL}/Cart`;
   // Note: Ensure your Swagger actually has a /promo endpoint,
   // as it's not visible in the screenshot.
@@ -24,8 +28,7 @@ export class CartService {
   getCart(): Observable<ApiWrapper<CartSummary>> {
     return this.http.get<ApiWrapper<CartSummary>>(this.base).pipe(
       map(res => {
-        if (res.isSuccess) {
-          console.log(res.data);
+        if (res.isSuccess && res.data) {
           res.data = mapCartSummary(res.data);
         }
         return res;
@@ -33,6 +36,13 @@ export class CartService {
       tap(res => {
         if (res.isSuccess && res.data) {
           this.cartSubject.next(res.data);
+          let count = 0;
+          if (res.data.items) {
+            count = res.data.items.reduce((acc, item) => acc + item.quantity, 0);
+          }
+          this.cartCountSubject.next(count);
+        } else if (!res.isSuccess) {
+          this.cartCountSubject.next(0);
         }
       })
     );
@@ -40,12 +50,18 @@ export class CartService {
 
   // ✅ Correct: Matches POST /api/Cart/items
   addItem(productId: number, quantity = 1): Observable<ApiWrapper<unknown>> {
+    // Optimistic UI update
+    this.cartCountSubject.next(this.cartCountSubject.value + quantity);
+
     return this.http.post<ApiWrapper<unknown>>(`${this.base}/items`, {
       productId,
       quantity,
     }).pipe(
       tap(res => {
         if (res.isSuccess) {
+          this.getCart().subscribe();
+        } else {
+          // Revert optimistic update if failed
           this.getCart().subscribe();
         }
       })

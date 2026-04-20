@@ -14,6 +14,7 @@ import { CartService } from '../../../../core/services/cart.service';
 import { ReviewsService } from '../../../../core/services/reviews.service';
 import { WishlistServiceService } from '../../../../core/services/wishlist-service.service';
 import { AuthService } from '../../../../core/services/auth.service';
+import { CartAnimationService } from '../../../../core/services/cart-animation.service';
 
 /** API message when the product has no reviews (average rating endpoint). */
 const NO_REVIEWS_MESSAGE = 'No Reviews';
@@ -106,6 +107,7 @@ export class ProductCatalogComponent implements OnInit {
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
     private readonly cartService: CartService,
+    private readonly cartAnimationService: CartAnimationService,
     private readonly reviewsService: ReviewsService,
     private readonly wishlistService: WishlistServiceService,
     private readonly authService: AuthService,
@@ -392,10 +394,15 @@ export class ProductCatalogComponent implements OnInit {
     void this.router.navigate(['/products', id]);
   }
 
-  addToCart(p: Product, event: Event): void {
+  addToCart(p: Product, event: MouseEvent): void {
     event.stopPropagation();
     this.cartMessage = null;
     this.cartError = null;
+
+    // Trigger visual notification and animation immediately
+    const imgUrl = this.pictureSrcFor(p) || 'assets/images/placeholder.png';
+    this.cartAnimationService.animateToCart(event, imgUrl);
+    
     this.cartService.addItem(p.id, 1).subscribe({
       next: () => (this.cartMessage = `Added “${p.name}” to cart`),
       error: err => (this.cartError = formatHttpError(err, 'Could not add to cart'))
