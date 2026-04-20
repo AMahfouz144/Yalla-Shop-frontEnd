@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { finalize } from 'rxjs';
-import { AdminSeller, SellerApprovalStatus } from '../../models/admin.models';
+import { AdminSeller } from '../../models/admin.models';
 import { AdminDashboardService } from '../../services/admin-dashboard.service';
+import { AdminToastService } from '../../services/admin-toast.service';
 
 @Component({
   selector: 'app-manage-sellers',
@@ -10,51 +11,71 @@ import { AdminDashboardService } from '../../services/admin-dashboard.service';
 })
 export class ManageSellersComponent implements OnInit {
   sellers: AdminSeller[] = [];
+  searchTerm = '';
+  pageSize = 10;
+  currentPage = 1;
   isLoading = false;
   errorMessage: string | null = null;
   processingSellerId: string | null = null;
 
-  constructor(private readonly adminDashboardService: AdminDashboardService) { }
+  constructor(
+    private readonly adminDashboardService: AdminDashboardService,
+    private readonly toastService: AdminToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadSellers();
   }
 
-  get pendingSellersCount(): number {
-    return this.sellers.filter((seller) => seller.sellerApprovalStatus === 'Pending').length;
+  get filteredSellers(): AdminSeller[] {
+    const value = this.searchTerm.trim().toLowerCase();
+    if (!value) {
+      return this.sellers;
+    }
+    return this.sellers.filter(
+      (seller) =>
+        seller.fullName.toLowerCase().includes(value) ||
+        seller.userName.toLowerCase().includes(value)
+    );
   }
 
-  get approvedSellersCount(): number {
-    return this.sellers.filter((seller) => seller.sellerApprovalStatus === 'Approved').length;
+  get pagedSellers(): AdminSeller[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredSellers.slice(start, start + this.pageSize);
   }
 
-  loadSellers(): void {
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredSellers.length / this.pageSize));
+  }
+
+  loadSellers(forceRefresh = true): void {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.adminDashboardService.getSellers()
+    this.adminDashboardService.getSellers(forceRefresh)
       .pipe(finalize(() => {
         this.isLoading = false;
       }))
       .subscribe({
         next: (sellers) => {
           this.sellers = sellers;
+          this.ensureValidPage();
         },
-        error: () => {
-          this.errorMessage = 'Unable to load sellers right now.';
+        error: (error) => {
+          this.errorMessage = error?.error?.message || error?.message || 'Unable to load sellers right now.';
         }
       });
   }
 
-  approveSeller(seller: AdminSeller): void {
-    this.updateSellerApproval(seller, 'Approved');
+  onSearchChange(): void {
+    this.currentPage = 1;
   }
 
-  rejectSeller(seller: AdminSeller): void {
-    this.updateSellerApproval(seller, 'Rejected');
+  changePage(direction: -1 | 1): void {
+    this.currentPage = Math.min(this.totalPages, Math.max(1, this.currentPage + direction));
   }
 
-  toggleSellerStatus(seller: AdminSeller): void {
+  toggleStatus(seller: AdminSeller): void {
     this.processingSellerId = seller.id;
     this.errorMessage = null;
 
@@ -64,50 +85,23 @@ export class ManageSellersComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.loadSellers();
+          this.toastService.success('Seller status updated successfully.');
+          this.loadSellers(true);
         },
-        error: () => {
-          this.errorMessage = `Unable to update ${seller.name}'s status.`;
+        error: (error) => {
+          const message = error?.error?.message || error?.message || 'Unable to update seller status.';
+          this.toastService.error(message);
         }
       });
-  }
-
-  getApprovalClasses(status: SellerApprovalStatus): string {
-    switch (status) {
-      case 'Approved':
-        return 'bg-emerald-100 text-emerald-700';
-      case 'Rejected':
-        return 'bg-rose-100 text-rose-700';
-      default:
-        return 'bg-amber-100 text-amber-800';
-    }
-  }
-
-  getStatusClasses(isActive: boolean): string {
-    return isActive
-      ? 'bg-sky-100 text-sky-700'
-      : 'bg-slate-200 text-slate-700';
   }
 
   trackBySellerId(_index: number, seller: AdminSeller): string {
     return seller.id;
   }
 
-  private updateSellerApproval(seller: AdminSeller, status: SellerApprovalStatus): void {
-    this.processingSellerId = seller.id;
-    this.errorMessage = null;
-
-    this.adminDashboardService.updateSellerApproval(seller.id, status)
-      .pipe(finalize(() => {
-        this.processingSellerId = null;
-      }))
-      .subscribe({
-        next: () => {
-          this.loadSellers();
-        },
-        error: () => {
-          this.errorMessage = `Unable to update ${seller.name}'s approval status.`;
-        }
-      });
+  private ensureValidPage(): void {
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
   }
 }

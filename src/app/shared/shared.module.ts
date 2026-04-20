@@ -9,6 +9,7 @@ import { ProductCardComponent } from './components/product-card/product-card.com
 import { StarRatingComponent } from './components/star-rating/star-rating.component';
 import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { ConfirmDialogComponent } from './components/confirm-dialog/confirm-dialog.component';
+import { UnauthorizedComponent } from './components/unauthorized/unauthorized.component';
 import { TruncatePipe } from './pipes/truncate.pipe';
 import { CurrencyEgpPipe } from './pipes/currency-egp.pipe';
 import { UsdPricePipe } from './pipes/usd-price.pipe';
@@ -22,6 +23,7 @@ import { HighlightDirective } from './directives/highlight.directive';
     StarRatingComponent,
     LoadingSpinnerComponent,
     ConfirmDialogComponent,
+    UnauthorizedComponent,
     TruncatePipe,
     CurrencyEgpPipe,
     UsdPricePipe,
@@ -47,6 +49,7 @@ import { HighlightDirective } from './directives/highlight.directive';
     StarRatingComponent,
     LoadingSpinnerComponent,
     ConfirmDialogComponent,
+    UnauthorizedComponent,
     TruncatePipe,
     CurrencyEgpPipe,
     UsdPricePipe,

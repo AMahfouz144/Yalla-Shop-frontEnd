@@ -1,22 +1,24 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { authGuard } from '../../core/guards/auth.guard';
+import { roleChildGuard, roleGuard } from '../../core/guards/role.guard';
 import { HomeComponent } from './pages/home/home.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { OrderHistoryComponent } from './pages/order-history/order-history.component';
 import { ProfileComponent } from './pages/profile/profile.component';
-import { ChangePasswordComponent } from '../Profile/Pages/ChangePassword/change-password/change-password.component';
-import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';
-import { WishlistComponent } from './pages/wishlist/wishlist.component';
-import { roleGuard } from '../../core/guards/role.guard';
 
 const routes: Routes = [
-  { path: 'home',           component: HomeComponent },
-  { path: 'cart',            component: CartComponent },
-  { path: 'orders',         component: OrderHistoryComponent },
-  { path: 'profile',        component: ProfileComponent },
-  { path: 'update-email',   component: UpdateEmailComponent },
-  { path: 'change-password', component: ChangePasswordComponent },
-  { path: 'wishlist',       component: WishlistComponent, canActivate: [roleGuard], data: { role: 'Customer' } }
+  {
+    path: '',
+    canActivateChild: [authGuard, roleChildGuard],
+    data: { roles: ['User'] },
+    children: [
+      { path: 'home', component: HomeComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
+      { path: 'cart', component: CartComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
+      { path: 'orders', component: OrderHistoryComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
+      { path: 'profile', component: ProfileComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } }
+    ]
+  }
 ];
 
 @NgModule({

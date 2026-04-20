@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, finalize } from 'rxjs';
-import { AdminProduct, ProductStatus } from '../../models/admin.models';
+import { finalize } from 'rxjs';
+import { AdminProduct } from '../../models/admin.models';
 import { AdminDashboardService } from '../../services/admin-dashboard.service';
+import { AdminToastService } from '../../services/admin-toast.service';
 
-type ProductStatusFilter = 'All' | ProductStatus;
+type ProductStatusFilter = 'All' | 'Pending' | 'Accepted' | 'Rejected';
 
 @Component({
   selector: 'app-manage-products',
@@ -15,77 +16,103 @@ export class ManageProductsComponent implements OnInit {
 
   products: AdminProduct[] = [];
   selectedStatus: ProductStatusFilter = 'All';
+  searchTerm = '';
+  pageSize = 10;
+  currentPage = 1;
   isLoading = false;
   errorMessage: string | null = null;
   processingProductId: string | null = null;
+  previewImage: string | null = null;
 
-  constructor(private readonly adminDashboardService: AdminDashboardService) { }
+  constructor(
+    private readonly adminDashboardService: AdminDashboardService,
+    private readonly toastService: AdminToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
   }
 
-  get filteredProducts(): AdminProduct[] {
-    if (this.selectedStatus === 'All') {
+  get searchedProducts(): AdminProduct[] {
+    const value = this.searchTerm.trim().toLowerCase();
+    if (!value) {
       return this.products;
     }
-
-    return this.products.filter((product) => product.status === this.selectedStatus);
+    return this.products.filter(
+      (product) =>
+        product.productName.toLowerCase().includes(value) ||
+        product.categoryId.toLowerCase().includes(value) ||
+        product.sellerId.toLowerCase().includes(value)
+    );
   }
 
-  loadProducts(): void {
+  get filteredProducts(): AdminProduct[] {
+    if (this.selectedStatus === 'All') {
+      return this.searchedProducts;
+    }
+    return this.searchedProducts.filter(
+      (product) => this.adminDashboardService.getProductStatusText(product.status) === this.selectedStatus
+    );
+  }
+
+  get pagedProducts(): AdminProduct[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.filteredProducts.slice(start, start + this.pageSize);
+  }
+
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredProducts.length / this.pageSize));
+  }
+
+  loadProducts(forceRefresh = true): void {
     this.isLoading = true;
     this.errorMessage = null;
 
-    this.adminDashboardService.getProducts()
+    this.adminDashboardService.getProducts(forceRefresh)
       .pipe(finalize(() => {
         this.isLoading = false;
       }))
       .subscribe({
         next: (products) => {
           this.products = products;
+          this.ensureValidPage();
         },
-        error: () => {
-          this.errorMessage = 'Unable to load products right now.';
+        error: (error) => {
+          this.errorMessage = error?.error?.message || error?.message || 'Unable to load products right now.';
         }
       });
   }
 
   setStatusFilter(filter: ProductStatusFilter): void {
     this.selectedStatus = filter;
+    this.currentPage = 1;
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+  }
+
+  changePage(direction: -1 | 1): void {
+    this.currentPage = Math.min(this.totalPages, Math.max(1, this.currentPage + direction));
   }
 
   acceptProduct(product: AdminProduct): void {
-    this.runProductAction(product, this.adminDashboardService.acceptProduct(product.id));
+    this.runProductAction(product, 1, 'Product accepted successfully.');
   }
 
   rejectProduct(product: AdminProduct): void {
-    this.runProductAction(product, this.adminDashboardService.rejectProduct(product.id));
+    this.runProductAction(product, 2, 'Product rejected successfully.');
   }
 
-  deleteProduct(product: AdminProduct): void {
-    this.processingProductId = product.id;
-    this.errorMessage = null;
-
-    this.adminDashboardService.deleteProduct(product.id)
-      .pipe(finalize(() => {
-        this.processingProductId = null;
-      }))
-      .subscribe({
-        next: () => {
-          this.loadProducts();
-        },
-        error: () => {
-          this.errorMessage = `Unable to delete ${product.name}.`;
-        }
-      });
+  getStatusCount(status: ProductStatusFilter): number {
+    if (status === 'All') {
+      return this.products.length;
+    }
+    return this.products.filter((product) => this.adminDashboardService.getProductStatusText(product.status) === status).length;
   }
 
-  getStatusCount(status: ProductStatus): number {
-    return this.products.filter((product) => product.status === status).length;
-  }
-
-  getStatusClasses(status: ProductStatus): string {
+  getStatusClasses(statusCode: 0 | 1 | 2): string {
+    const status = this.adminDashboardService.getProductStatusText(statusCode);
     switch (status) {
       case 'Accepted':
         return 'bg-emerald-100 text-emerald-700';
@@ -96,33 +123,46 @@ export class ManageProductsComponent implements OnInit {
     }
   }
 
-  formatPrice(price: number): string {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EGP',
-      maximumFractionDigits: 0
-    }).format(price);
+  getStatusText(product: AdminProduct): 'Pending' | 'Accepted' | 'Rejected' {
+    return this.adminDashboardService.getProductStatusText(product.status);
+  }
+
+  openImagePreview(imageUrl: string): void {
+    this.previewImage = imageUrl;
+  }
+
+  closeImagePreview(): void {
+    this.previewImage = null;
   }
 
   trackByProductId(_index: number, product: AdminProduct): string {
     return product.id;
   }
 
-  private runProductAction(product: AdminProduct, request$: Observable<AdminProduct>): void {
+  private runProductAction(product: AdminProduct, nextStatus: 1 | 2, successMessage: string): void {
     this.processingProductId = product.id;
     this.errorMessage = null;
 
-    request$
+    this.adminDashboardService
+      .updateProductStatus(product.id, nextStatus)
       .pipe(finalize(() => {
         this.processingProductId = null;
       }))
       .subscribe({
         next: () => {
-          this.loadProducts();
+          this.toastService.success(successMessage);
+          this.loadProducts(true);
         },
-        error: () => {
-          this.errorMessage = `Unable to update ${product.name}.`;
+        error: (error) => {
+          const message = error?.error?.message || error?.message || 'Unable to update product status.';
+          this.toastService.error(message);
         }
       });
+  }
+
+  private ensureValidPage(): void {
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = this.totalPages;
+    }
   }
 }

@@ -8,20 +8,9 @@ import { API_BASE_URL } from '../../../../core/config/api-base';
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  constructor (private http: HttpClient) {
+  constructor () {
 
   }
-  onInit () {
-    this.justTest()
-  }
-  justTest () {
-    this.http
-      .post(`${API_BASE_URL}/Auth/login`, {
-        userName: 'system@admin.com',
-        password: 'P@ssw0rd'
-      })
-      .subscribe(data => {
-        console.log("Login Response:", data)
-      })
-  }
+
+ 
 }

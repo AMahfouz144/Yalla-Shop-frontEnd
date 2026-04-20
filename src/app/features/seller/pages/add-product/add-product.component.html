@@ -1,1 +1,85 @@
-<p>add-product works!</p>
+<section class="mx-auto max-w-2xl space-y-6">
+  <div>
+    <h2 class="font-headline text-3xl font-extrabold tracking-tight text-slate-950">{{ pageTitle }}</h2>
+    <p class="mt-1 text-sm text-slate-600">
+      Images and fields are sent as multipart form data to match the Product API.
+    </p>
+  </div>
+
+  <p *ngIf="sellerId == null" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+    <span class="material-symbols-outlined text-[16px] align-text-bottom mr-1">warning</span>
+    Could not detect your seller account. Please try logging in again.
+  </p>
+
+  <p *ngIf="error" class="text-sm text-rose-600">{{ error }}</p>
+  <p *ngIf="success" class="text-sm text-emerald-700">{{ success }}</p>
+  <p *ngIf="loadingCategories || loadingProduct" class="text-sm text-slate-500">Loading…</p>
+
+  <form *ngIf="!loadingProduct" class="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm"
+    (ngSubmit)="submit()" [formGroup]="form">
+    <div class="space-y-1">
+      <label class="text-sm font-semibold text-slate-800" for="p-name">Name</label>
+      <input id="p-name"
+        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none ring-teal-600/0 focus:ring-2"
+        formControlName="name" autocomplete="off" />
+      <p *ngIf="form.controls.name.touched && form.controls.name.invalid" class="text-xs text-rose-600">Enter a name
+        (2–200 characters).</p>
+    </div>
+
+    <div class="space-y-1">
+      <label class="text-sm font-semibold text-slate-800" for="p-desc">Description</label>
+      <textarea id="p-desc" rows="4"
+        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-600/30"
+        formControlName="description"></textarea>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="space-y-1">
+        <label class="text-sm font-semibold text-slate-800" for="p-price">Price</label>
+        <input id="p-price" type="number" step="0.01" min="0.01"
+          class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-600/30"
+          formControlName="price" />
+      </div>
+      <div class="space-y-1">
+        <label class="text-sm font-semibold text-slate-800" for="p-stock">Stock quantity</label>
+        <input id="p-stock" type="number" min="0" step="1"
+          class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-600/30"
+          formControlName="stockQuantity" />
+      </div>
+    </div>
+
+    <div class="space-y-1">
+      <label class="text-sm font-semibold text-slate-800" for="p-cat">Category</label>
+      <select id="p-cat"
+        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-600/30"
+        formControlName="categoryId">
+        <option [ngValue]="null">Select category</option>
+        <option *ngFor="let c of categories" [ngValue]="c.id">{{ c.name }}</option>
+      </select>
+    </div>
+
+
+
+
+    <div class="space-y-1">
+      <label class="text-sm font-semibold text-slate-800" for="p-img">Image</label>
+      <input #imageInput id="p-img" type="file" accept="image/*" class="block w-full text-sm text-slate-600" />
+      <p class="text-xs text-slate-500">
+        <ng-container *ngIf="mode === 'create'">Required for new products.</ng-container>
+        <ng-container *ngIf="mode === 'edit'">Optional — upload only if you want to replace the photo.</ng-container>
+      </p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 pt-2">
+      <button type="submit"
+        class="inline-flex items-center justify-center rounded-2xl bg-teal-700 px-6 py-2.5 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50"
+        [disabled]="submitting || loadingCategories">
+        {{ submitting ? 'Saving…' : (mode === 'edit' ? 'Update product' : 'Create product') }}
+      </button>
+      <a routerLink="/seller/products"
+        class="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-6 py-2.5 text-sm font-semibold text-slate-800 hover:bg-slate-50">
+        Cancel
+      </a>
+    </div>
+  </form>
+</section>

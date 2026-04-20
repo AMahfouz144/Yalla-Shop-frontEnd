@@ -1,5 +1,5 @@
 <!-- TopNavBar Section -->
-<header class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-md shadow-[0px_12px_32px_rgba(23,28,31,0.06)]">
+<!-- <header class="fixed top-0 w-full z-50 bg-white/85 backdrop-blur-md shadow-[0px_12px_32px_rgba(23,28,31,0.06)]">
   <nav class="flex justify-between items-center px-8 h-20 max-w-full">
     <div class="flex items-center gap-12">
       <a class="text-2xl font-black text-[#00535b] tracking-tighter" routerLink="/">EditorialMarket</a>
@@ -42,27 +42,38 @@
           </div>
           <button class="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-bold hover:bg-primary-container transition-colors" routerLink="/checkout">Checkout Now</button>
         </div>
-      </div>
+      </div> -->
       
+<header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200/70">
+  <nav class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
+    <a routerLink="/home" class="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
+      Yalla<span class="text-primary">Shop</span>
+    </a>
+
+    <!-- <div class="hidden md:flex items-center gap-2">
+      <a routerLink="/home" class="nav-link">Home</a>
+      <a routerLink="/products" class="nav-link">Products</a>
+    </div> -->
+
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a routerLink="/cart" class="icon-button" aria-label="Cart">
+        <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+      </a>
+
       <ng-container *ngIf="isLoggedIn; else loggedOut">
-        <!-- User Profile -->
-        <div class="relative group cursor-pointer flex items-center gap-2 hover:bg-slate-50 p-1.5 rounded-full pr-4 transition-colors" routerLink="/profile">
-           <div class="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container text-white flex items-center justify-center text-sm font-bold shadow-sm">
-              {{ userName.charAt(0) | uppercase }}
-           </div>
-           <span class="text-sm font-bold text-on-surface truncate max-w-[120px]">{{ userName }}</span>
-        </div>
-        <!-- Logout Button -->
-        <button class="p-2 hover:bg-error/10 text-error rounded-full transition-colors flex items-center justify-center" (click)="logout()" title="Logout">
+        <a [routerLink]="dashboardRoute" *ngIf="isSeller||isAdmin" class="hidden sm:inline-flex nav-pill">Dashboard</a>
+        <a routerLink="/profile" class="user-pill">
+          <span class="avatar">{{ userName.charAt(0) | uppercase }}</span>
+          <span class="hidden lg:inline truncate max-w-[110px]">{{ userName }}</span>
+        </a>
+        <button class="icon-button text-red-600 hover:bg-red-50" (click)="logout()" title="Logout" type="button">
           <span class="material-symbols-outlined text-[20px]">logout</span>
         </button>
       </ng-container>
 
       <ng-template #loggedOut>
-        <div class="flex items-center gap-3">
-          <a routerLink="/auth/login" class="text-sm font-bold text-on-surface hover:text-primary transition-colors px-2 py-2">Login</a>
-          <a routerLink="/auth/register" class="bg-primary text-white text-sm font-bold px-5 py-2.5 rounded-full hover:bg-primary/90 transition-all shadow-sm">Register</a>
-        </div>
+        <a routerLink="/auth/login" class="nav-link">Login</a>
+        <a routerLink="/auth/register" class="nav-pill">Register</a>
       </ng-template>
     </div>
   </nav>
