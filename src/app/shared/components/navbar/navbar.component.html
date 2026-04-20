@@ -19,7 +19,7 @@
     </div>
     
     <div class="flex items-center gap-6">
-      <button class="relative group p-2 hover:bg-slate-50 rounded-full transition-colors">
+      <button *ngIf="isCustomer" class="relative group p-2 hover:bg-slate-50 rounded-full transition-colors" routerLink="/wishlist">
         <span class="material-symbols-outlined text-on-surface">favorite</span>
       </button>
       

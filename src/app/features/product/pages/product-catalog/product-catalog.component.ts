@@ -7,6 +7,9 @@ import { Category } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { CartService } from '../../../../core/services/cart.service';
 import { ReviewsService } from '../../../../core/services/reviews.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { WishlistServiceService } from '../../../../core/services/wishlist-service.service';
+import { AddProductToWhislist } from '../../../../core/models/add-product-to-whislist';
 import { formatHttpError } from '../../../../core/utils/http-error.util';
 import { productPictureSrc } from '../../../../core/utils/product-image.util';
 import { Product, ProductFilterParams } from '../../models/product.model';
@@ -56,6 +59,9 @@ export class ProductCatalogComponent implements OnInit {
   error: string | null = null;
   cartMessage: string | null = null;
   cartError: string | null = null;
+  wishlistMessage: string | null = null;
+  wishlistError: string | null = null;
+  wishlistLoading: Record<number, boolean> = {};
 
   filterOpen = false;
 
@@ -100,6 +106,8 @@ export class ProductCatalogComponent implements OnInit {
     private readonly categoryService: CategoryService,
     private readonly cartService: CartService,
     private readonly reviewsService: ReviewsService,
+    private readonly wishlistService: WishlistServiceService,
+    private readonly authService: AuthService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
@@ -306,6 +314,47 @@ export class ProductCatalogComponent implements OnInit {
     this.cartService.addItem(p.id, 1).subscribe({
       next: () => (this.cartMessage = `Added “${p.name}” to cart`),
       error: err => (this.cartError = formatHttpError(err, 'Could not add to cart'))
+    });
+  }
+
+  addToWishlist(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.wishlistMessage = null;
+    this.wishlistError = null;
+
+    if (!this.authService.isAuthenticated()) {
+      this.wishlistError = 'Please log in to add items to your wishlist.';
+      return;
+    }
+
+    const user = this.authService.getSessionUser();
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+
+    if (!user || !token) {
+      this.wishlistError = 'Unable to add item to wishlist. Please log in again.';
+      return;
+    }
+
+    this.wishlistLoading = { ...this.wishlistLoading, [product.id]: true };
+
+    const request: AddProductToWhislist = {
+      userId: user.userId,
+      productId: product.id
+    };
+
+    this.wishlistService.addToWishlist(token, request).subscribe({
+      next: result => {
+        this.wishlistLoading = { ...this.wishlistLoading, [product.id]: false };
+        if (result.isSuccess) {
+          this.wishlistMessage = result.message || `Added “${product.name}” to wishlist.`;
+          return;
+        }
+        this.wishlistError = result.message || 'Could not add item to wishlist.';
+      },
+      error: err => {
+        this.wishlistLoading = { ...this.wishlistLoading, [product.id]: false };
+        this.wishlistError = formatHttpError(err, 'Could not add item to wishlist');
+      }
     });
   }
 }

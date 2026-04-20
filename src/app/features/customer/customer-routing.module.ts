@@ -6,6 +6,8 @@ import { OrderHistoryComponent } from './pages/order-history/order-history.compo
 import { ProfileComponent } from './pages/profile/profile.component';
 import { ChangePasswordComponent } from '../Profile/Pages/ChangePassword/change-password/change-password.component';
 import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
+import { roleGuard } from '../../core/guards/role.guard';
 
 const routes: Routes = [
   { path: 'home',           component: HomeComponent },
@@ -13,7 +15,8 @@ const routes: Routes = [
   { path: 'orders',         component: OrderHistoryComponent },
   { path: 'profile',        component: ProfileComponent },
   { path: 'update-email',   component: UpdateEmailComponent },
-  { path: 'change-password', component: ChangePasswordComponent }
+  { path: 'change-password', component: ChangePasswordComponent },
+  { path: 'wishlist',       component: WishlistComponent, canActivate: [roleGuard], data: { role: 'Customer' } }
 ];
 
 @NgModule({
