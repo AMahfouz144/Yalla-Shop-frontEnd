@@ -32,7 +32,28 @@ function resolveImageUrl(url: string | null | undefined): string {
 }
 
 export function mapCartItem(raw: any): CartItem {
-  const rawImageUrl = pick(raw, 'imageUrl', 'ImageUrl', 'productImageUrl', 'ProductImageUrl', 'image', 'Image');
+  const nestedProduct = pick(raw, 'product', 'Product') || {};
+  const rawImageUrl = pick(
+    raw,
+    'imageUrl',
+    'ImageUrl',
+    'productImageUrl',
+    'ProductImageUrl',
+    'image',
+    'Image',
+    'picture',
+    'Picture'
+  ) ?? pick(
+    nestedProduct,
+    'imageUrl',
+    'ImageUrl',
+    'productImageUrl',
+    'ProductImageUrl',
+    'image',
+    'Image',
+    'picture',
+    'Picture'
+  );
   return {
     id: String(pick(raw, 'id', 'Id') || ''),
     productId: String(pick(raw, 'productId', 'ProductId') || ''),

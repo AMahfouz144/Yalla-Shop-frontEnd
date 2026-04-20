@@ -5,7 +5,7 @@ import { catchError } from 'rxjs/operators';
 
 import { API_BASE_URL } from '../config/api-base';
 import { ResponseModel } from '../Interfaces/response-model';
-import { OrderResponseDto } from '../models/order-history.model';
+import { OrderResponseDto, OrderStatus } from '../models/order-history.model';
 
 @Injectable({
   providedIn: 'root'
@@ -31,10 +31,21 @@ export class OrderService {
   // GET /api/orders/seller/{sellerId}
   // Returns all orders that contain products belonging to the given seller ID.
   // ---------------------------------------------------------------------------
-  getOrdersBySeller(sellerId: number): Observable<ResponseModel<OrderResponseDto[]>> {
+  getOrdersBySeller(sellerId: string | number): Observable<ResponseModel<OrderResponseDto[]>> {
     return this.http
       .get<ResponseModel<OrderResponseDto[]>>(`${this.apiUrl}/seller/${sellerId}`)
       .pipe(catchError(this.handleError));
+  }
+
+  // ---------------------------------------------------------------------------
+  // PUT /api/orders/{orderId}/status/{status}
+  // Updates order status by seller.
+  // ---------------------------------------------------------------------------
+  updateOrderStatus(orderId: number, status: OrderStatus): Observable<ResponseModel<unknown>> {
+    return this.http
+      .put<ResponseModel<unknown>>(`${this.apiUrl}/${orderId}/status/`,status)
+      .pipe(catchError(this.handleError));
+      ///api/Orders/20/status
   }
 
   // ---------------------------------------------------------------------------

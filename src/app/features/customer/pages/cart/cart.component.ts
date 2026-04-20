@@ -4,6 +4,8 @@ import { Subscription } from 'rxjs';
 import { CartItem, CartSummary } from '../../../../core/models/cart.model';
 import { PromoResult } from '../../../../core/models/promo.model';
 import { CartService } from '../../../../core/services/cart.service';
+import { ProductService } from '../../../product/services/product.service';
+import { API_ORIGIN } from '../../../../core/config/api-base';
 
 
 @Component({
@@ -12,6 +14,15 @@ import { CartService } from '../../../../core/services/cart.service';
   styleUrl: './cart.component.css'
 })
 export class CartComponent implements OnInit, OnDestroy {
+  private static readonly IMAGE_PLACEHOLDER =
+    'data:image/svg+xml;utf8,' +
+    encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="320" height="320" viewBox="0 0 320 320">
+        <rect width="320" height="320" fill="#f3f4f6"/>
+        <path d="M74 226l53-64 43 48 33-39 43 55H74z" fill="#d1d5db"/>
+        <circle cx="122" cy="111" r="22" fill="#e5e7eb"/>
+      </svg>`
+    );
   cart: CartSummary | null = null;
   promoCode = '';
   promoResult: PromoResult | null = null;
@@ -23,6 +34,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly cartService: CartService,
+    private readonly productService: ProductService,
     private readonly router: Router
   ) {}
 
@@ -41,6 +53,10 @@ export class CartComponent implements OnInit, OnDestroy {
     this.cartService.getCart().subscribe({
       next: res => {
         this.loading = false;
+        if (res.isSuccess && res.data?.items) {
+          console.log('[Cart] items payload:', res.data.items);
+          this.enrichCartItemImages(res.data.items);
+        }
         if (!res.isSuccess) {
           this.errorMessage = res.message || 'Failed to load cart items.';
         }
@@ -49,6 +65,44 @@ export class CartComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.cart = null;
         this.errorMessage = 'Failed to load cart items.';
+      }
+    });
+  }
+
+  /**
+   * Enrich cart items with imageUrl from the Product API.
+   * If the Cart API doesn't return imageUrl, we fetch all products
+   * and map their imageUrl onto the corresponding cart items.
+   */
+  private enrichCartItemImages(items: CartItem[]): void {
+    const itemsMissingImage = items.filter(item => !item.imageUrl);
+    if (itemsMissingImage.length === 0) {
+      // All items already have imageUrl — no enrichment needed
+      return;
+    }
+
+    this.productService.filter({}).subscribe({
+      next: products => {
+        const imageMap = new Map<string, string>();
+        for (const p of products) {
+          if (p.imageUrl) {
+            imageMap.set(String(p.id), p.imageUrl);
+          }
+        }
+
+        // Enrich cart items that are missing imageUrl
+        for (const item of items) {
+          if (!item.imageUrl) {
+            const productImage = imageMap.get(String(item.productId));
+            if (productImage) {
+              item.imageUrl = productImage;
+            }
+          }
+        }
+        console.log('[Cart] enriched items with images:', items);
+      },
+      error: err => {
+        console.warn('[Cart] Could not fetch products for image enrichment:', err);
       }
     });
   }
@@ -137,6 +191,37 @@ export class CartComponent implements OnInit, OnDestroy {
 
   get hasItems(): boolean {
     return !!this.cart?.items?.length;
+  }
+
+  getFullImageUrl(url: string | null | undefined): string {
+    if (!url) {
+      return CartComponent.IMAGE_PLACEHOLDER;
+    }
+
+    const normalized = String(url).trim().replace(/\\/g, '/');
+    if (!normalized) {
+      return CartComponent.IMAGE_PLACEHOLDER;
+    }
+
+    if (
+      normalized.startsWith('http://') ||
+      normalized.startsWith('https://') ||
+      normalized.startsWith('data:') ||
+      normalized.startsWith('blob:')
+    ) {
+      return normalized;
+    }
+
+    const withLeadingSlash = normalized.startsWith('/') ? normalized : `/${normalized}`;
+    return `${API_ORIGIN}${withLeadingSlash}`;
+  }
+
+  onItemImageError(event: Event): void {
+    const img = event.target as HTMLImageElement | null;
+    if (!img) {
+      return;
+    }
+    img.src = CartComponent.IMAGE_PLACEHOLDER;
   }
 
   get finalTotal(): number {

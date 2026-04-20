@@ -64,13 +64,16 @@ function coerceStatus(raw: unknown): ProductStatus {
 /** Maps API JSON (camelCase or PascalCase) to our Product model. */
 export function mapProductDto(raw: Record<string, unknown>): Product {
   const sellerRaw = pick(raw, 'sellerId', 'SellerId');
+  const rawPicture = pickPicture(raw);
+  const imageUrlStr = typeof rawPicture === 'string' ? rawPicture.trim() : '';
   return {
     id: coerceNum(pick(raw, 'id', 'Id')),
     name: String(pick(raw, 'name', 'Name') ?? ''),
     description: String(pick(raw, 'description', 'Description') ?? ''),
     price: coerceNum(pick(raw, 'price', 'Price')),
     stockQuantity: coerceNum(pick(raw, 'stockQuantity', 'StockQuantity')),
-    picture: normalizePicture(pickPicture(raw)),
+    picture: normalizePicture(rawPicture),
+    imageUrl: imageUrlStr,
     status: coerceStatus(pick(raw, 'status', 'Status')),
     categoryId: coerceNum(pick(raw, 'categoryId', 'CategoryId')),
     sellerId: sellerRaw == null || sellerRaw === '' ? null : coerceNum(sellerRaw),

@@ -25,6 +25,7 @@ export class CartService {
     return this.http.get<ApiWrapper<CartSummary>>(this.base).pipe(
       map(res => {
         if (res.isSuccess) {
+          console.log(res.data);
           res.data = mapCartSummary(res.data);
         }
         return res;

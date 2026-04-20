@@ -58,8 +58,11 @@
       <a routerLink="/cart" class="icon-button" aria-label="Cart">
         <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
       </a>
+      <a *ngIf="isCustomer" routerLink="/orders" class="icon-button" aria-label="My Orders" title="My Orders">
+        <span class="material-symbols-outlined text-[20px]">receipt_long</span>
+      </a>
       <button *ngIf="isCustomer" class="relative group p-2 hover:bg-slate-50 rounded-full transition-colors"
-        routerLink="/wishlist">
+        routerLink="/wishlist" aria-label="Wishlist" title="Wishlist">
         <span class="material-symbols-outlined text-on-surface">favorite</span>
       </button>
       <ng-container *ngIf="isLoggedIn; else loggedOut">

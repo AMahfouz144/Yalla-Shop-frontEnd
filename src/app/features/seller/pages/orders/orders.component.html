@@ -1,4 +1,11 @@
-<section class="mx-auto max-w-4xl space-y-6">
+<section class="mx-auto max-w-4xl space-y-6 relative">
+  <!-- Toast Notification -->
+  <div *ngIf="toastMsg" 
+       class="fixed top-24 right-8 z-50 px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-all duration-300"
+       [ngClass]="toastType === 'success' ? 'bg-emerald-100 text-emerald-900 border border-emerald-200' : 'bg-red-100 text-red-900 border border-red-200'">
+    {{ toastMsg }}
+  </div>
+
   <div>
     <h2 class="font-headline text-3xl font-extrabold tracking-tight text-slate-950">Orders</h2>
     <p class="mt-1 text-sm text-slate-600">Orders that include at least one of your products (by your account id).</p>
@@ -32,7 +39,30 @@
         </li>
       </ul>
 
-      <p class="mt-4 text-right text-sm font-semibold text-slate-900">Total: {{ order.totalPrice | usdPrice }}</p>
+      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
+        <!-- Status Action Update -->
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-semibold text-slate-700">Update Status:</span>
+          <select 
+            #statusSelect
+            [disabled]="isUpdating[order.id] || order.status === OrderStatus.Delivered || order.status === OrderStatus.Cancelled"
+            (change)="updateStatus(order, statusSelect.value); statusSelect.value = ''"
+            class="rounded-lg border border-slate-200 bg-slate-50 text-sm px-3 py-1.5 focus:bg-white focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none disabled:opacity-50 transition-colors"
+          >
+            <option value="" disabled selected>Select new status</option>
+            <option [value]="OrderStatus.Processing" *ngIf="order.status === OrderStatus.Pending">Processing</option>
+            <option [value]="OrderStatus.Shipped" *ngIf="order.status === OrderStatus.Processing || order.status === OrderStatus.Pending">Shipped</option>
+            <option [value]="OrderStatus.Delivered" *ngIf="order.status === OrderStatus.Shipped || order.status === OrderStatus.Processing || order.status === OrderStatus.Pending">Delivered</option>
+            <option [value]="OrderStatus.Cancelled" *ngIf="order.status !== OrderStatus.Delivered && order.status !== OrderStatus.Cancelled">Cancelled</option>
+          </select>
+          <span *ngIf="isUpdating[order.id]" class="material-symbols-outlined animate-spin text-primary ml-2">sync</span>
+        </div>
+        
+        <p class="text-right text-sm font-bold text-slate-900 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-100">
+          Total: {{ order.totalPrice | usdPrice }}
+        </p>
+      </div>
+
     </article>
   </div>
 </section>

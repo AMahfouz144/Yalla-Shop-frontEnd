@@ -9,6 +9,7 @@ import { PromoResult } from '../../../../core/models/promo.model';
 import { CreateShippingAddressDto, ShippingAddressDto } from '../../../../core/models/shipping-address.model';
 import { CartService } from '../../../../core/services/cart.service';
 import { CheckoutService } from '../../services/checkout.service';
+import { ProductService } from '../../../product/services/product.service';
 import { Component, OnInit } from '@angular/core';
 
 
@@ -43,6 +44,7 @@ export class CheckoutComponent implements OnInit {
   constructor(
     private cartService: CartService,
     private checkoutService: CheckoutService,
+    private productService: ProductService,
     private fb: FormBuilder,
     private router: Router
   ) {
@@ -68,6 +70,9 @@ export class CheckoutComponent implements OnInit {
       next: (res) => {
         if (res.isSuccess) {
           this.cart = res.data;
+          if (this.cart?.items) {
+            this.enrichCartItemImages(this.cart.items);
+          }
         } else {
           this.errorMessage = res.message || 'Failed to load cart';
         }
@@ -75,6 +80,38 @@ export class CheckoutComponent implements OnInit {
       error: () => {
         this.errorMessage = 'Failed to load cart';
       },
+    });
+  }
+
+  /**
+   * Enrich cart items with imageUrl from the Product API
+   * when the Cart API doesn't return image URLs.
+   */
+  private enrichCartItemImages(items: CartItem[]): void {
+    const missing = items.filter(item => !item.imageUrl);
+    if (missing.length === 0) {
+      return;
+    }
+    this.productService.filter({}).subscribe({
+      next: products => {
+        const imageMap = new Map<string, string>();
+        for (const p of products) {
+          if (p.imageUrl) {
+            imageMap.set(String(p.id), p.imageUrl);
+          }
+        }
+        for (const item of items) {
+          if (!item.imageUrl) {
+            const productImage = imageMap.get(String(item.productId));
+            if (productImage) {
+              item.imageUrl = productImage;
+            }
+          }
+        }
+      },
+      error: err => {
+        console.warn('[Checkout] Could not fetch products for image enrichment:', err);
+      }
     });
   }
 

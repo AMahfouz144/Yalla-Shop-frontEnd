@@ -39,8 +39,10 @@
               <div class="flex flex-col sm:flex-row sm:items-center">
                 <!-- Image -->
                 <div class="flex-shrink-0 mb-4 sm:mb-0 sm:mr-8 cursor-pointer" [routerLink]="['/products', item.productId]">
-                  <img [src]="item.imageUrl || 'assets/images/placeholder.png'" 
+                  <img [src]="getFullImageUrl(item.imageUrl)"
                        [alt]="item.name"
+                       loading="lazy"
+                       (error)="onItemImageError($event)"
                        class="w-32 h-32 sm:w-36 sm:h-36 rounded-2xl object-cover border border-gray-100 shadow-sm transition-transform hover:scale-105">
                 </div>
 

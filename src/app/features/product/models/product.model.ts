@@ -11,6 +11,7 @@ export interface Product {
   price: number;
   stockQuantity: number;
   picture: string | null;
+  imageUrl: string;
   status: ProductStatus;
   categoryId: number;
   sellerId: number | null;
