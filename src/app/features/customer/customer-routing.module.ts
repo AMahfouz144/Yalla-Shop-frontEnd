@@ -6,17 +6,19 @@ import { HomeComponent } from './pages/home/home.component';
 import { CartComponent } from './pages/cart/cart.component';
 import { OrderHistoryComponent } from './pages/order-history/order-history.component';
 import { ProfileComponent } from './pages/profile/profile.component';
+import { WishlistComponent } from './pages/wishlist/wishlist.component';
 
 const routes: Routes = [
   {
     path: '',
     canActivateChild: [authGuard, roleChildGuard],
-    data: { roles: ['User'] },
+    data: { roles: ['Customer'] },
     children: [
-      { path: 'home', component: HomeComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
-      { path: 'cart', component: CartComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
-      { path: 'orders', component: OrderHistoryComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } },
-      { path: 'profile', component: ProfileComponent, canActivate: [authGuard, roleGuard], data: { roles: ['User'] } }
+      { path: 'home', component: HomeComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Customer'] } },
+      { path: 'cart', component: CartComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Customer'] } },
+      { path: 'orders', component: OrderHistoryComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Customer'] } },
+      { path: 'profile', component: ProfileComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Customer'] } },
+      { path: 'wishlist', component: WishlistComponent, canActivate: [authGuard, roleGuard], data: { roles: ['Customer'] } }
     ]
   }
 ];

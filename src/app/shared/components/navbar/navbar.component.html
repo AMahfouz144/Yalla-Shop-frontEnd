@@ -42,7 +42,7 @@
           <button class="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-bold hover:bg-primary-container transition-colors" routerLink="/checkout">Checkout Now</button>
         </div>
       </div> -->
-      
+
 <header class="fixed top-0 inset-x-0 z-50 bg-white/90 backdrop-blur border-b border-slate-200/70">
   <nav class="max-w-7xl mx-auto h-20 px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-4">
     <a routerLink="/home" class="text-lg sm:text-xl font-semibold tracking-tight text-slate-900">
@@ -58,7 +58,10 @@
       <a routerLink="/checkout" class="icon-button" aria-label="Cart">
         <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
       </a>
-
+      <button *ngIf="isCustomer" class="relative group p-2 hover:bg-slate-50 rounded-full transition-colors"
+        routerLink="/wishlist">
+        <span class="material-symbols-outlined text-on-surface">favorite</span>
+      </button>
       <ng-container *ngIf="isLoggedIn; else loggedOut">
         <a [routerLink]="dashboardRoute" *ngIf="isSeller||isAdmin" class="hidden sm:inline-flex nav-pill">Dashboard</a>
         <a routerLink="/profile" class="user-pill">
