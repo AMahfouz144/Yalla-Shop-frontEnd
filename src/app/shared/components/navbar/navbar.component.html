@@ -58,9 +58,10 @@
       <!-- Add ID "cartIcon" to act as target for animation service -->
       <!-- Add animate-bounce class conditionally -->
       <a routerLink="/cart" id="cartIcon" class="icon-button relative" aria-label="Cart"
-         [ngClass]="{'animate-bounce': isBouncing}">
-        <span class="material-symbols-outlined text-[20px]">shopping_cart</span>
-        <span *ngIf="(cartCount$ | async) as count" class="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] font-bold px-[5px] py-[1px] rounded-full">
+        [ngClass]="{'animate-bounce': isBouncing}">
+        <span *ngIf="isLoggedIn" class="material-symbols-outlined text-[20px]">shopping_cart</span>
+        <span *ngIf="(cartCount$ | async) as count"
+          class="absolute -top-1 -right-1 bg-primary text-on-primary text-[10px] font-bold px-[5px] py-[1px] rounded-full">
           {{ count }}
         </span>
       </a>
@@ -69,10 +70,10 @@
       </a>
       <button *ngIf="isCustomer" class="relative group p-2 hover:bg-slate-50 rounded-full transition-colors"
         routerLink="/wishlist" aria-label="Wishlist" title="Wishlist">
-        <span class="material-symbols-outlined text-on-surface">favorite</span>
+        <span *ngIf="isLoggedIn" class="material-symbols-outlined text-on-surface">favorite</span>
       </button>
       <ng-container *ngIf="isLoggedIn; else loggedOut">
-        <a [routerLink]="dashboardRoute" *ngIf="isSeller||isAdmin" class="hidden sm:inline-flex nav-pill">Dashboard</a>
+        <!-- <a [routerLink]="dashboardRoute" *ngIf="isSeller||isAdmin" class="hidden sm:inline-flex nav-pill">Dashboard</a> -->
         <a routerLink="/profile" class="user-pill">
           <span class="avatar">{{ userName.charAt(0) | uppercase }}</span>
           <span class="hidden lg:inline truncate max-w-[110px]">{{ userName }}</span>

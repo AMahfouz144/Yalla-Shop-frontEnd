@@ -8,6 +8,7 @@ import { ManageCustomersComponent } from './pages/manage-customers/manage-custom
 import { ManageProductsComponent } from './pages/manage-products/manage-products.component';
 import { ManageSellersComponent } from './pages/manage-sellers/manage-sellers.component';
 import { PendingProductsComponent } from './pages/pending-products/pending-products.component';
+import { CreatePromoComponent } from './components/create-promo/create-promo.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { PendingProductsComponent } from './pages/pending-products/pending-produ
     ManageCustomersComponent,
     ManageProductsComponent,
     ManageSellersComponent,
-    PendingProductsComponent
+    PendingProductsComponent,
+    CreatePromoComponent
   ],
   imports: [
     SharedModule,

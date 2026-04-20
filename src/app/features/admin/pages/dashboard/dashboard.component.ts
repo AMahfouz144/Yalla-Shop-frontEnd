@@ -12,6 +12,7 @@ export class DashboardComponent implements OnInit {
   summary: AdminDashboardSummary | null = null;
   isLoading = false;
   errorMessage: string | null = null;
+  showPromoModal = false;
 
   constructor(private readonly adminDashboardService: AdminDashboardService) {}
 
@@ -34,5 +35,13 @@ export class DashboardComponent implements OnInit {
           this.errorMessage = error?.error?.message || error?.message || 'Failed to load dashboard overview.';
         }
       });
+  }
+
+  openPromoModal(): void {
+    this.showPromoModal = true;
+  }
+
+  closePromoModal(): void {
+    this.showPromoModal = false;
   }
 }
