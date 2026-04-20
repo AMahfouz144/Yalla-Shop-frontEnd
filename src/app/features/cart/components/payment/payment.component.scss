@@ -1,0 +1,293 @@
+:host {
+  --primary: #0057bd;
+  --primary-gradient: linear-gradient(135deg, #0057bd, #6e9fff);
+  --on-primary: #ffffff;
+  --bg-color: #f5f7f9;
+  --surface: #ffffff;
+  --text-on-surface: #2c2f31;
+  --text-secondary: #595c5e;
+  --outline: rgba(171, 173, 175, 0.3);
+  --outline-focus: #6e9fff;
+  --error: #b31b25;
+  --error-bg: #ffefee;
+  --success: #16a34a;
+  --ambient-shadow: 0 32px 64px -4px rgba(44, 47, 49, 0.06);
+  display: block;
+  min-height: 100vh;
+  background-color: var(--bg-color);
+}
+
+/* ── Success Overlay ── */
+.success-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(12px);
+  animation: fadeIn 0.3s ease-out;
+}
+.success-content { text-align: center; }
+.success-icon-container {
+  width: 5rem; height: 5rem;
+  background: #dcfce7;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  animation: bounceIn 0.5s 0.2s both;
+}
+.success-icon { font-size: 2.5rem; color: var(--success); font-variation-settings: 'FILL' 1; }
+.success-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 700; color: var(--text-on-surface); margin-bottom: 0.5rem; }
+.success-subtitle { color: var(--text-secondary); font-size: 0.875rem; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bounceIn { 0% { transform: scale(0); } 60% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+/* ── Header ── */
+.payment-header {
+  width: 100%; padding: 1.5rem 2rem;
+  display: flex; justify-content: center; align-items: center;
+  position: absolute; top: 0; z-index: 10;
+  .logo-container {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 1.25rem; font-weight: 800; letter-spacing: -0.025em;
+    color: var(--text-on-surface);
+    display: flex; align-items: center; gap: 0.5rem;
+    .logo-icon { color: var(--primary); font-variation-settings: 'FILL' 1; }
+  }
+}
+
+/* ── Back button ── */
+.back-button {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  background: none; border: none;
+  color: var(--primary); font-size: 0.875rem; font-weight: 600;
+  cursor: pointer; padding: 0; margin-bottom: 1rem;
+  transition: opacity 0.2s;
+  &:hover { opacity: 0.7; }
+}
+
+/* ── Main layout ── */
+.payment-main {
+  flex-grow: 1; display: flex; align-items: center; justify-content: center;
+  padding: 6rem 1rem 2rem; background-color: var(--bg-color); min-height: 100vh;
+}
+.payment-container {
+  width: 100%; max-width: 1024px;
+  display: grid; grid-template-columns: 1fr; gap: 2rem;
+  @media (min-width: 1024px) { grid-template-columns: repeat(12, 1fr); gap: 4rem; }
+}
+.form-column {
+  @media (min-width: 1024px) { grid-column: span 7; }
+  .page-title-section { margin-bottom: 2rem; }
+  .page-title {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 2.5rem; font-weight: 700; color: var(--text-on-surface); margin-bottom: 0.5rem;
+    @media (min-width: 768px) { font-size: 3rem; }
+  }
+  .page-subtitle { color: var(--text-secondary); font-size: 0.875rem; }
+}
+
+/* ── Card form ── */
+.payment-card {
+  background: var(--surface); padding: 2rem; border-radius: 0.75rem;
+  box-shadow: var(--ambient-shadow);
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+.error-banner {
+  background: var(--error-bg); color: var(--error);
+  padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.875rem;
+  border: 1px solid rgba(179, 27, 37, 0.1);
+}
+.input-group {
+  display: flex; flex-direction: column; gap: 0.5rem;
+  .input-label {
+    font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 600;
+    color: var(--text-on-surface); display: flex; align-items: center; gap: 0.35rem;
+  }
+}
+.input-wrapper {
+  position: relative; display: flex; align-items: center;
+  background: var(--surface); border: 1px solid var(--outline);
+  border-radius: 0.5rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  &:focus-within { border-color: var(--outline-focus); box-shadow: 0 0 0 4px rgba(110, 159, 255, 0.1); }
+  &.error { border-color: var(--error); }
+  .input-icon { position: absolute; left: 1rem; color: var(--text-secondary); font-size: 1.25rem; }
+  .form-input {
+    width: 100%; padding: 0.75rem 1rem 0.75rem 3rem;
+    background: transparent; border: none; outline: none;
+    color: var(--text-on-surface); font-family: 'Inter', sans-serif;
+    &::placeholder { color: #abadaf; }
+  }
+}
+.gateway-logos {
+  position: absolute; right: 1rem; display: flex; gap: 0.25rem;
+  .badge {
+    background: var(--bg-color); color: var(--text-secondary);
+    font-size: 0.625rem; font-weight: 700; padding: 0.125rem 0.35rem; border-radius: 0.125rem;
+  }
+}
+.row { display: flex; gap: 1.5rem; .col-6 { flex: 1; } }
+.info-icon { font-size: 1rem; color: var(--text-secondary); cursor: help; }
+.checkbox-group {
+  display: flex; align-items: flex-start; gap: 0.75rem; padding-top: 0.5rem;
+  .form-checkbox { width: 1rem; height: 1rem; margin-top: 0.25rem; cursor: pointer; }
+  .checkbox-label {
+    font-size: 0.875rem; color: var(--text-secondary); line-height: 1.25;
+    .checkbox-hint { font-size: 0.75rem; opacity: 0.7; }
+  }
+}
+
+/* ── Pay button ── */
+.pay-button {
+  width: 100%; background: var(--primary-gradient); color: var(--on-primary);
+  font-weight: 600; padding: 1rem; border-radius: 0.5rem; border: none;
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+  cursor: pointer; transition: opacity 0.2s;
+  box-shadow: 0 4px 6px -1px rgba(0, 87, 189, 0.1), 0 2px 4px -1px rgba(0, 87, 189, 0.06);
+  &:hover:not(:disabled) { opacity: 0.9; }
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+  .spinner {
+    width: 1.25rem; height: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.3); border-top-color: #ffffff;
+    border-radius: 50%; animation: spin 0.8s linear infinite;
+  }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Trust badges ── */
+.trust-section {
+  padding-top: 1.5rem; border-top: 1px solid var(--outline);
+  display: flex; justify-content: center; gap: 1.5rem;
+  .trust-badge {
+    display: flex; align-items: center; gap: 0.25rem;
+    font-size: 0.75rem; font-weight: 600; color: var(--text-secondary);
+    .badge-icon { font-size: 1.125rem; color: var(--primary); }
+  }
+}
+
+/* ── Right column ── */
+.summary-column {
+  position: relative;
+  @media (min-width: 1024px) { grid-column: span 5; position: sticky; top: 8rem; }
+  .decorative-blob {
+    position: absolute; top: -3rem; right: -3rem;
+    width: 16rem; height: 16rem;
+    background: rgba(0, 87, 189, 0.05); border-radius: 50%; filter: blur(48px); z-index: -1;
+  }
+}
+
+/* ── Card visual ── */
+.card-visual {
+  width: 100%; aspect-ratio: 1.586;
+  background: var(--primary-gradient); border-radius: 1rem;
+  padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;
+  color: white; position: relative; overflow: hidden;
+  box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+  .card-pattern {
+    position: absolute; inset: 0;
+    background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
+    background-size: 20px 20px; opacity: 0.5;
+  }
+  .card-gloss {
+    position: absolute; top: 0; right: 0; width: 6rem; height: 6rem;
+    background: rgba(255,255,255,0.15); border-bottom-left-radius: 100%; backdrop-filter: blur(8px);
+  }
+  .card-top {
+    display: flex; justify-content: space-between; align-items: flex-start; position: relative;
+    .card-chip {
+      width: 3rem; height: 2.25rem; background: rgba(255,255,255,0.2);
+      border-radius: 0.375rem; display: flex; align-items: center; justify-content: center;
+      backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.3);
+      .chip-lines {
+        width: 2rem; height: 1.5rem;
+        border: 1px solid rgba(255,255,255,0.4); border-radius: 0.125rem;
+        background: linear-gradient(to bottom, transparent 45%, rgba(255,255,255,0.4) 45%, rgba(255,255,255,0.4) 55%, transparent 55%);
+      }
+    }
+    .card-brand {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700; font-size: 1.125rem; letter-spacing: 0.1em; opacity: 0.9;
+    }
+  }
+  .card-middle {
+    position: relative;
+    .card-number-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 1.5rem; letter-spacing: 0.2em; margin-bottom: 1.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      @media (min-width: 768px) { font-size: 1.75rem; }
+    }
+    .card-info-row {
+      display: flex; justify-content: space-between; align-items: flex-end;
+      .info-label { font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.8; display: block; margin-bottom: 0.25rem; }
+      .info-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.875rem; font-weight: 600; letter-spacing: 0.05em; }
+    }
+  }
+}
+
+/* ── Order summary ── */
+.order-summary {
+  margin-top: 2rem; background: rgba(255,255,255,0.8);
+  backdrop-filter: blur(24px); padding: 1.5rem; border-radius: 0.75rem;
+  border: 1px solid var(--outline); box-shadow: var(--ambient-shadow);
+  .summary-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; margin-bottom: 1.5rem; }
+  .summary-row {
+    display: flex; justify-content: space-between; font-size: 0.875rem; margin-bottom: 1rem;
+    .row-label { color: var(--text-secondary); }
+    .row-value { font-weight: 500; }
+  }
+  .summary-divider { height: 1px; background: #dfe3e6; margin: 1.5rem 0; }
+  .summary-total {
+    display: flex; justify-content: space-between; align-items: center;
+    .total-label { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; }
+    .total-value { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--primary); }
+  }
+}
+.loading-text { text-align: center; color: var(--text-secondary); font-size: 0.875rem; padding: 1rem 0; }
+
+/* ── Stripe split-element wrappers ─────────────────────────────────────────
+   These make Stripe's iframes look identical to the old native <input> fields.
+   The outer .stripe-wrapper reuses the same border/focus ring as .input-wrapper.
+   The inner .stripe-field gives the iframe room to render.
+   ────────────────────────────────────────────────────────────────────────── */
+.stripe-wrapper {
+  // override default flex so the stripe div can grow
+  align-items: center;
+  padding: 0;        // we'll pad inside stripe-field instead
+
+  .stripe-field {
+    flex: 1;
+    padding: 0.8rem 1rem 0.8rem 3rem; // left-pad matches the icon offset
+    min-height: 2.75rem;              // same height as form-input
+    // The Stripe iframe stretches to fill this div automatically
+    .InputElement {
+      width: 100%;
+    }
+  }
+
+  // Right-side logos sit at the same absolute position as before
+  .gateway-logos { right: 1rem; }
+}
+
+.stripe-field-error {
+  font-size: 0.75rem;
+  color: var(--error);
+  margin-top: 0.25rem;
+  display: block;
+}
+
+.stripe-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0.8;
+  margin-top: -0.5rem; // tighten spacing
+}
+

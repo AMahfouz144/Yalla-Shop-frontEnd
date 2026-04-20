@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { CartItem, CartSummary } from '../../../../core/models/cart.model';
 import { PromoResult } from '../../../../core/models/promo.model';
 import { CartService } from '../../../../core/services/cart.service';
+
 
 @Component({
   selector: 'app-cart',
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.css'
 })
-export class CartComponent implements OnInit {
+export class CartComponent implements OnInit, OnDestroy {
   cart: CartSummary | null = null;
   promoCode = '';
   promoResult: PromoResult | null = null;
@@ -17,6 +19,7 @@ export class CartComponent implements OnInit {
   updating = false;
   errorMessage = '';
   promoError = '';
+  private cartSub: Subscription | null = null;
 
   constructor(
     private readonly cartService: CartService,
@@ -24,7 +27,12 @@ export class CartComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.cartSub = this.cartService.cart$.subscribe(c => (this.cart = c));
     this.loadCart();
+  }
+
+  ngOnDestroy(): void {
+    this.cartSub?.unsubscribe();
   }
 
   loadCart(): void {
@@ -33,13 +41,9 @@ export class CartComponent implements OnInit {
     this.cartService.getCart().subscribe({
       next: res => {
         this.loading = false;
-        if (res.isSuccess && res.data) {
-          this.cart = res.data;
-          return;
+        if (!res.isSuccess) {
+          this.errorMessage = res.message || 'Failed to load cart items.';
         }
-
-        this.cart = null;
-        this.errorMessage = res.message || 'Failed to load cart items.';
       },
       error: () => {
         this.loading = false;
@@ -122,12 +126,13 @@ export class CartComponent implements OnInit {
     void this.router.navigate(['/checkout']);
   }
 
-  formatMoney(value: number): string {
+  formatMoney(value: number | undefined | null): string {
+    const amount = typeof value === 'number' ? value : 0;
     return new Intl.NumberFormat('en-EG', {
       style: 'currency',
       currency: 'EGP',
       minimumFractionDigits: 2,
-    }).format(value);
+    }).format(amount);
   }
 
   get hasItems(): boolean {
@@ -139,6 +144,8 @@ export class CartComponent implements OnInit {
       return 0;
     }
 
-    return this.cart.total - (this.promoResult?.discount ?? 0);
+    const total = this.cart.totalAmount || 0;
+    const discount = this.promoResult?.discount || this.cart.discount || 0;
+    return Math.max(0, total - (this.promoResult ? this.promoResult.discount : 0));
   }
 }

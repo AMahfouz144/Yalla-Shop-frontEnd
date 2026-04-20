@@ -4,11 +4,11 @@ import { finalize, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { Category } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
-import { CartService } from '../../../../core/services/cart.service';
 import { formatHttpError } from '../../../../core/utils/http-error.util';
 import { productPictureSrc } from '../../../../core/utils/product-image.util';
 import { Product, ProductFilterParams } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+import { CartService } from '../../../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-catalog',

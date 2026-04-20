@@ -1,0 +1,207 @@
+<header class="payment-header">
+  <div class="logo-container">
+    <span class="material-symbols-outlined logo-icon">lock</span>
+    Secure Checkout
+  </div>
+</header>
+
+<main class="payment-main">
+  <!-- ── Success Overlay ── -->
+  <div class="success-overlay" *ngIf="paymentSuccess">
+    <div class="success-content">
+      <div class="success-icon-container">
+        <span class="material-symbols-outlined success-icon">check_circle</span>
+      </div>
+      <h2 class="success-title">Payment Successful!</h2>
+      <p class="success-subtitle">Redirecting to your order confirmation...</p>
+    </div>
+  </div>
+
+  <div class="payment-container" *ngIf="!paymentSuccess">
+
+    <!-- ═══════════════ LEFT — form ═══════════════ -->
+    <div class="form-column">
+      <div class="page-title-section">
+        <button type="button" (click)="goBack()" class="back-button">
+          <span class="material-symbols-outlined">arrow_back</span>
+          Back to Checkout
+        </button>
+        <h1 class="page-title">Payment Details</h1>
+        <p class="page-subtitle">Complete your purchase securely.</p>
+      </div>
+
+      <form [formGroup]="paymentForm" (ngSubmit)="processPayment()" class="payment-card">
+
+        <!-- Global error banner -->
+        <div *ngIf="errorMessage" class="error-banner">
+          <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle">error</span>
+          {{ errorMessage }}
+        </div>
+
+        <!-- ── Card Number (Stripe element) ── -->
+        <div class="input-group">
+          <label class="input-label">Card Number</label>
+          <div class="input-wrapper stripe-wrapper">
+            <span class="material-symbols-outlined input-icon">credit_card</span>
+            <div id="stripe-card-number" class="stripe-field"></div>
+            <span class="gateway-logos">
+              <span class="badge">VISA</span>
+              <span class="badge">MC</span>
+            </span>
+          </div>
+          <span class="stripe-field-error" *ngIf="cardNumberError">{{ cardNumberError }}</span>
+        </div>
+
+        <!-- ── Expiry + CVV row ── -->
+        <div class="row">
+          <div class="input-group col-6">
+            <label class="input-label">Expiry Date</label>
+            <div class="input-wrapper stripe-wrapper">
+              <span class="material-symbols-outlined input-icon">calendar_month</span>
+              <div id="stripe-card-expiry" class="stripe-field"></div>
+            </div>
+            <span class="stripe-field-error" *ngIf="cardExpiryError">{{ cardExpiryError }}</span>
+          </div>
+          <div class="input-group col-6">
+            <label class="input-label">
+              CVV
+              <span class="material-symbols-outlined info-icon" title="3-4 digits on the back of your card">info</span>
+            </label>
+            <div class="input-wrapper stripe-wrapper">
+              <span class="material-symbols-outlined input-icon">lock</span>
+              <div id="stripe-card-cvc" class="stripe-field"></div>
+            </div>
+            <span class="stripe-field-error" *ngIf="cardCvcError">{{ cardCvcError }}</span>
+          </div>
+        </div>
+
+        <!-- ── Cardholder Name ── -->
+        <div class="input-group">
+          <label class="input-label" for="cardName">Cardholder Name</label>
+          <div class="input-wrapper"
+               [class.error]="paymentForm.get('cardName')?.invalid && paymentForm.get('cardName')?.touched">
+            <span class="material-symbols-outlined input-icon">person</span>
+            <input
+              formControlName="cardName"
+              id="cardName"
+              placeholder="Name on card"
+              type="text"
+              class="form-input"
+            />
+          </div>
+          <span class="stripe-field-error"
+                *ngIf="paymentForm.get('cardName')?.invalid && paymentForm.get('cardName')?.touched">
+            Cardholder name is required.
+          </span>
+        </div>
+
+        <!-- ── Stripe not ready hint ── -->
+        <p class="stripe-hint" *ngIf="!stripeReady">
+          <span class="material-symbols-outlined" style="font-size:14px;vertical-align:middle">info</span>
+          Please fill in all card fields above.
+        </p>
+
+        <!-- ── Save card ── -->
+        <div class="checkbox-group">
+          <input formControlName="saveCard" class="form-checkbox" id="saveCard" type="checkbox" />
+          <label class="checkbox-label" for="saveCard">
+            Save this card for future purchases.<br/>
+            <span class="checkbox-hint">Your information is securely encrypted.</span>
+          </label>
+        </div>
+
+        <!-- ── Submit ── -->
+        <div class="submit-section">
+          <button
+            type="submit"
+            [disabled]="!canPay"
+            class="pay-button"
+          >
+            <span class="material-symbols-outlined" *ngIf="!isLoading">lock</span>
+            <span class="spinner" *ngIf="isLoading"></span>
+            {{ isLoading ? 'Processing...' : 'Pay ' + formatMoney(totalDue) }}
+          </button>
+        </div>
+
+        <!-- ── Trust badges ── -->
+        <div class="trust-section">
+          <div class="trust-badge">
+            <span class="material-symbols-outlined badge-icon">verified_user</span>
+            Stripe
+          </div>
+          <div class="trust-badge">
+            <span class="material-symbols-outlined badge-icon">verified_user</span>
+            SSL Secure
+          </div>
+          <div class="trust-badge">
+            <span class="material-symbols-outlined badge-icon">verified_user</span>
+            PCI Compliant
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ═══════════════ RIGHT — card visual + summary ═══════════════ -->
+    <div class="summary-column">
+      <div class="decorative-blob"></div>
+
+      <div class="card-visual">
+        <div class="card-pattern"></div>
+        <div class="card-gloss"></div>
+        <div class="card-top">
+          <div class="card-chip"><div class="chip-lines"></div></div>
+          <span class="card-brand">YALLA SHOP</span>
+        </div>
+        <div class="card-middle">
+          <div class="card-number-display">{{ displayCardNumber }}</div>
+          <div class="card-info-row">
+            <div class="card-holder">
+              <span class="info-label">Cardholder</span>
+              <span class="info-value">{{ (paymentForm.get('cardName')?.value || 'YOUR NAME') | uppercase }}</span>
+            </div>
+            <div class="card-expiry">
+              <span class="info-label">Expires</span>
+              <span class="info-value">{{ displayExpiry }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="order-summary">
+        <h3 class="summary-title">Order Summary</h3>
+
+        <div class="summary-details" *ngIf="totalAmount > 0">
+          <div class="summary-row">
+            <span class="row-label">Order #{{ orderNumber || orderId }}</span>
+            <span class="row-value">{{ formatMoney(subTotal) }}</span>
+          </div>
+          <div class="summary-row">
+            <span class="row-label">Shipping</span>
+            <span class="row-value">{{ formatMoney(shippingCost) }}</span>
+          </div>
+          <div class="summary-row" *ngIf="discount > 0">
+            <span class="row-label">Discount</span>
+            <span class="row-value">-{{ formatMoney(discount) }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-total">
+            <span class="total-label">Total Due</span>
+            <span class="total-value">{{ formatMoney(totalAmount) }}</span>
+          </div>
+        </div>
+
+        <div class="summary-details" *ngIf="isLoadingOrder && totalAmount === 0">
+          <p class="loading-text">Loading order details...</p>
+        </div>
+
+        <div class="summary-details" *ngIf="!isLoadingOrder && totalAmount === 0">
+          <div class="summary-total">
+            <span class="total-label">Order #{{ orderId }}</span>
+            <span class="total-value">Awaiting payment</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>

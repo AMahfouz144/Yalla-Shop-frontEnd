@@ -1,8 +1,8 @@
 export interface CartItem {
   id: string;
   productId: string;
-  productName: string;
-  productImageUrl: string;
+  name: string;
+  imageUrl: string;
   unitPrice: number;
   quantity: number;
   totalPrice: number;
@@ -17,6 +17,6 @@ export interface CartSummary {
   subTotal: number;
   shippingCost: number;
   discount: number;
-  total: number;
+  totalAmount: number;
   promoCodeApplied?: string;
 }
