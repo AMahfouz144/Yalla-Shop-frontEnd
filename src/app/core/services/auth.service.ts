@@ -17,6 +17,7 @@ export interface AuthSessionUser {
 })
 export class AuthService {
   /** Matches `api/Auth` on the server (see Swagger). */
+  private readonly apiUrl = `https://yallashop-api.runasp.net/api/Auth`;
   private readonly apiUrl = `${API_BASE_URL}/Auth`
 
   constructor (private http: HttpClient) {}
@@ -24,6 +25,8 @@ export class AuthService {
   register (userData: any): Observable<any> {
     return this.http.post(`${this.apiUrl}/register`, {
       ...userData,
+      clientUrl: 'http://localhost:4200'
+    });
       clientUrl: window.location.origin
     })
   }
@@ -106,7 +109,7 @@ export class AuthService {
       return null
     }
 
-    return localStorage.getItem('role')
+    return localStorage.getItem('role')?.trim() || null;
   }
 
   hasRole (role: string): boolean {
@@ -190,10 +193,10 @@ export class AuthService {
       return null
     }
 
-    const userId = localStorage.getItem('userId')
-    const fullName = localStorage.getItem('fullName')
-    const userName = localStorage.getItem('userName')
-    const role = localStorage.getItem('role')
+    const userId = localStorage.getItem('userId')?.trim();
+    const fullName = localStorage.getItem('fullName')?.trim();
+    const userName = localStorage.getItem('userName')?.trim();
+    const role = localStorage.getItem('role')?.trim();
 
     if (!userId || !fullName || !userName || !role) {
       return null

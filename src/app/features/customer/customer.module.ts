@@ -12,8 +12,7 @@ import { CategoriesGridComponent } from './components/categories-grid/categories
 import { NewArrivalsComponent } from './components/new-arrivals/new-arrivals.component';
 import { NewsletterComponent } from './components/newsletter/newsletter.component';
 import { ChangePasswordComponent } from '../Profile/Pages/ChangePassword/change-password/change-password.component';
-import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';
-
+import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';import { WishlistComponent } from './pages/wishlist/wishlist.component';
 @NgModule({
   declarations: [
     HomeComponent,
@@ -22,6 +21,7 @@ import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/
     ProfileComponent,
     UpdateEmailComponent,
     ChangePasswordComponent,
+    WishlistComponent,
     HeroBannerComponent,
     CategoriesGridComponent,
     NewArrivalsComponent,

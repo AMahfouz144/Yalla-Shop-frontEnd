@@ -1,0 +1,220 @@
+<section class="product-reviews w-full max-w-4xl" *ngIf="productId != null && productId > 0">
+  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <div>
+      <h2 class="font-headline text-2xl font-bold text-on-background tracking-tight">Customer reviews</h2>
+      <p class="text-sm text-on-surface-variant mt-1">Ratings and feedback from verified purchases.</p>
+    </div>
+    <button
+      *ngIf="canAddReview"
+      type="button"
+      class="inline-flex items-center justify-center gap-2 rounded-lg border border-outline-variant/30 bg-surface-container-low px-4 py-2.5 text-sm font-semibold text-on-background hover:bg-surface-container transition-colors"
+      (click)="openAddForm()"
+    >
+      <span class="material-symbols-outlined text-base">rate_review</span>
+      Add Review
+    </button>
+  </div>
+
+  <p *ngIf="successMessage" class="mb-4 rounded-lg border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-on-background">
+    {{ successMessage }}
+  </p>
+  <p *ngIf="bannerError" class="mb-4 rounded-lg border border-error/40 bg-error/10 px-4 py-3 text-sm text-error">
+    {{ bannerError }}
+  </p>
+
+  <!-- Average rating -->
+  <div class="mb-10 rounded-xl border border-outline-variant/20 bg-surface-container-low/50 p-6">
+    <p class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-3">Average rating</p>
+    <div *ngIf="loading" class="text-sm text-on-surface-variant">Loading…</div>
+    <ng-container *ngIf="!loading">
+      <p *ngIf="ratingError" class="text-sm text-error">{{ ratingError }}</p>
+      <ng-container *ngIf="!ratingError">
+        <p *ngIf="averageNoReviews" class="text-sm text-on-surface-variant">No reviews yet — be the first to share your thoughts.</p>
+        <div *ngIf="!averageNoReviews && averageRating != null" class="flex flex-wrap items-center gap-3">
+          <div class="flex items-center gap-1 text-amber-500" [attr.aria-label]="'Average ' + averageRating + ' out of 5'">
+            <span *ngFor="let s of averageStars" class="inline-flex leading-none">
+              <ng-container [ngSwitch]="s.kind">
+                <span *ngSwitchCase="'full'" class="text-xl">★</span>
+                <span *ngSwitchCase="'empty'" class="text-xl text-on-surface-variant/40">☆</span>
+                <span *ngSwitchCase="'half'" class="star-half text-xl" aria-hidden="true">
+                  <span class="star-half__fill">★</span><span class="star-half__track">☆</span>
+                </span>
+              </ng-container>
+            </span>
+          </div>
+          <span class="text-lg font-semibold tabular-nums text-on-background">{{ averageRating | number : '1.1-1' }}</span>
+          <span class="text-sm text-on-surface-variant">out of 5</span>
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <!-- Add / Edit form -->
+  <div
+    *ngIf="formOpen"
+    class="mb-10 rounded-xl border border-outline-variant/25 bg-surface-container-lowest p-6 shadow-sm"
+  >
+    <div class="flex items-start justify-between gap-4 mb-4">
+      <h3 class="font-headline text-lg font-semibold text-on-background">
+        {{ editingReview ? 'Update your review' : 'Write a review' }}
+      </h3>
+      <button
+        type="button"
+        class="rounded-full p-1 text-on-surface-variant hover:bg-surface-container"
+        (click)="closeForm()"
+        aria-label="Close"
+      >
+        <span class="material-symbols-outlined text-xl">close</span>
+      </button>
+    </div>
+
+    <p class="text-sm text-on-surface-variant mb-4">Select a star rating (required). You may leave the comment blank.</p>
+
+    <div class="flex items-center gap-1 mb-4" role="group" aria-label="Star rating">
+      <button
+        *ngFor="let n of starPick"
+        type="button"
+        class="rounded p-1 transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-primary/50"
+        [ngClass]="{
+          'text-amber-500': formRating >= n,
+          'text-on-surface-variant opacity-40': formRating < n
+        }"
+        (click)="setFormRating(n)"
+        [attr.aria-pressed]="formRating === n"
+      >
+        <span class="text-3xl leading-none">{{ formRating >= n ? '★' : '☆' }}</span>
+      </button>
+      <span class="ml-2 text-sm text-on-surface-variant tabular-nums">{{ formRating }} / 5</span>
+    </div>
+
+    <label class="block text-sm font-semibold text-on-background mb-2" for="review-comment">Comment (optional)</label>
+    <textarea
+      id="review-comment"
+      rows="4"
+      class="w-full rounded-lg border border-outline-variant/30 bg-surface-container-lowest px-3 py-2 text-sm text-on-background placeholder:text-on-surface-variant/50 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+      placeholder="Share details about quality, fit, or delivery…"
+      [(ngModel)]="formComment"
+    ></textarea>
+
+    <div class="mt-4 flex flex-wrap gap-3">
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-on-primary hover:opacity-90 disabled:opacity-50"
+        [disabled]="formSubmitting"
+        (click)="submitForm()"
+      >
+        {{ editingReview ? 'Save changes' : 'Submit review' }}
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-lg border border-outline-variant/30 px-5 py-2.5 text-sm font-semibold text-on-background hover:bg-surface-container"
+        [disabled]="formSubmitting"
+        (click)="closeForm()"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div *ngIf="loading && reviews.length === 0" class="text-sm text-on-surface-variant py-8">Loading reviews…</div>
+  <p *ngIf="!loading && listError" class="text-sm text-error mb-4">{{ listError }}</p>
+
+  <ul *ngIf="reviews.length > 0" class="space-y-6">
+    <li
+      *ngFor="let r of reviews; trackBy: trackByReviewId"
+      class="rounded-xl border border-outline-variant/15 bg-surface-container-low/30 p-5 md:p-6"
+    >
+      <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div class="min-w-0 flex-1">
+          <div class="mb-2">
+            <p class="text-sm font-semibold text-on-background">
+              {{ r.reviewerName }}
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 mb-2">
+            <div class="flex items-center gap-0.5 text-amber-500" [attr.aria-label]="'Rating ' + r.rating + ' out of 5'">
+              <span *ngFor="let s of starsForReview(r.rating)" class="inline-flex leading-none">
+                <ng-container [ngSwitch]="s.kind">
+                  <span *ngSwitchCase="'full'" class="text-base">★</span>
+                  <span *ngSwitchCase="'empty'" class="text-base text-on-surface-variant/40">☆</span>
+                  <span *ngSwitchCase="'half'" class="star-half text-base" aria-hidden="true">
+                    <span class="star-half__fill">★</span><span class="star-half__track">☆</span>
+                  </span>
+                </ng-container>
+              </span>
+            </div>
+            <span class="text-xs text-on-surface-variant tabular-nums">{{ r.rating | number : '1.0-1' }} / 5</span>
+          </div>
+          <p *ngIf="r.comment && r.comment.trim()" class="text-sm leading-relaxed text-on-background whitespace-pre-wrap break-words">
+            {{ r.comment }}
+          </p>
+          <p *ngIf="!r.comment || !r.comment.trim()" class="text-sm italic text-on-surface-variant">No written comment.</p>
+          <p class="text-xs text-on-surface-variant mt-3">
+            <span class="material-symbols-outlined align-middle text-[14px] mr-1">schedule</span>
+            {{ r.createdAt | date : 'medium' }}
+          </p>
+        </div>
+
+        <div *ngIf="isReviewOwner(r)" class="flex flex-shrink-0 gap-2 md:flex-col md:items-stretch">
+          <button
+            type="button"
+            class="rounded-lg border border-outline-variant/30 px-3 py-2 text-xs font-semibold text-on-background hover:bg-surface-container"
+            (click)="openEditForm(r)"
+          >
+            Update
+          </button>
+          <button
+            type="button"
+            class="rounded-lg border border-error/40 px-3 py-2 text-xs font-semibold text-error hover:bg-error/10"
+            (click)="askDelete(r)"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </li>
+  </ul>
+
+  <p *ngIf="!loading && !listError && reviews.length === 0" class="text-sm text-on-surface-variant py-6 border-t border-outline-variant/15">
+    No reviews have been posted for this product yet.
+  </p>
+
+  <!-- Delete confirmation -->
+  <div
+    *ngIf="deleteTarget as dt"
+    class="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/50"
+    (click)="cancelDelete()"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="delete-review-title"
+  >
+    <div
+      class="w-full max-w-md rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-6 shadow-2xl"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 id="delete-review-title" class="font-headline text-lg font-bold text-on-background mb-2">Delete this review?</h3>
+      <p class="text-sm text-on-surface-variant leading-relaxed mb-6">
+        This removes your rating and comment permanently. You can write a new review later if you change your mind.
+      </p>
+      <div class="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+        <button
+          type="button"
+          class="rounded-lg border border-outline-variant/30 px-4 py-2.5 text-sm font-semibold text-on-background hover:bg-surface-container"
+          [disabled]="deleteSubmitting"
+          (click)="cancelDelete()"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          class="rounded-lg bg-error px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          [disabled]="deleteSubmitting"
+          (click)="confirmDelete()"
+        >
+          {{ deleteSubmitting ? 'Deleting…' : 'Delete review' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

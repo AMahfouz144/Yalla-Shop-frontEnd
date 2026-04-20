@@ -11,6 +11,10 @@ export class NavbarComponent {
 
   constructor(private authService: AuthService, private router: Router) { }
 
+  get isCustomer(): boolean {
+    return this.authService.isAuthenticated() && this.authService.hasRole('Customer');
+  }
+
   get isLoggedIn(): boolean {
     if (typeof localStorage === 'undefined') {
       return false;

@@ -34,4 +34,10 @@ export class CartService {
       quantity,
     });
   }
+  addToCart(productId: number, quantity: number): Observable<ApiWrapper<unknown>> {
+    return this.http.post<ApiWrapper<unknown>>(`${this.base}/cart`, {
+      productId,
+      quantity,
+    });
+  }
 }
