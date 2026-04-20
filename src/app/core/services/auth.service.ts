@@ -17,7 +17,7 @@ export interface AuthSessionUser {
 })
 export class AuthService {
   /** Matches `api/Auth` on the server (see Swagger). */
-  private readonly apiUrl = `https://yallashop-api.runasp.net/api/Auth`;
+  // private readonly apiUrl = `https://yallashop-api.runasp.net/api/Auth`;
   private readonly apiUrl = `${API_BASE_URL}/Auth`
 
   constructor (private http: HttpClient) {}
@@ -28,8 +28,9 @@ export class AuthService {
       clientUrl: 'http://localhost:4200'
     });
       clientUrl: window.location.origin
-    })
   }
+
+
   confirmEmail (userId: string, code: string) {
     return this.http.post<ResponseModel<boolean>>(
       `${this.apiUrl}/confirm-email`,
