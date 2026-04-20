@@ -1,5 +1,5 @@
 <main class="flex-grow pt-[88px] bg-background text-on-surface font-body antialiased min-h-screen">
-  <div class="bg-surface sticky top-[72px] z-30 transition-colors">
+  <div class="bg-surface sticky top-[72px] z-30 transition-colors border-b border-outline-variant/10">
     <div class="max-w-7xl mx-auto px-8 py-6">
       <nav class="flex items-center gap-3 overflow-x-auto no-scrollbar">
         <button
@@ -25,7 +25,7 @@
     <div class="max-w-xl">
       <h1 class="font-headline text-5xl font-bold tracking-tight text-on-surface mb-4">Shop</h1>
       <p class="font-body text-base text-on-surface-variant leading-relaxed">
-        Browse the catalog. Open filters for name, description, price, stock, category, dates, and sort — same options as the API.
+        Browse our curated catalog. Use filters to narrow down by price, category, or availability.
       </p>
     </div>
     <div class="flex items-center gap-4">
@@ -43,7 +43,7 @@
         (click)="resetFilters()"
       >
         <span class="material-symbols-outlined text-sm">restart_alt</span>
-        Reset Filters
+        Reset
       </button>
     </div>
   </div>
@@ -55,7 +55,6 @@
         type="button"
         class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
         (click)="removeActiveFilter(filter.key)"
-        [title]="'Remove ' + filter.label"
       >
         {{ filter.label }}
         <span class="material-symbols-outlined text-sm">close</span>
@@ -64,289 +63,88 @@
   </div>
 
   <div class="max-w-7xl mx-auto px-8 pb-4 space-y-3">
-    <div *ngIf="cartMessage" class="rounded-[28px] border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(16,185,129,0.35)] text-sm text-emerald-950">
-      <div class="flex items-start gap-4">
-        <span class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
-        <div>
-          <p class="font-semibold">Item added to cart</p>
-          <p>{{ cartMessage }}</p>
-        </div>
-      </div>
+    <div *ngIf="cartMessage" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-950 flex items-center gap-3">
+      <span class="material-symbols-outlined text-emerald-600">check_circle</span>
+      {{ cartMessage }}
     </div>
-    <div *ngIf="cartError" class="rounded-[28px] border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(244,63,94,0.25)] text-sm text-rose-950">
-      <div class="flex items-start gap-4">
-        <span class="material-symbols-outlined text-rose-600 text-lg">error</span>
-        <div>
-          <p class="font-semibold">Unable to add to cart</p>
-          <p>{{ cartError }}</p>
-        </div>
-      </div>
     </div>
-    <div *ngIf="wishlistMessage" class="rounded-[28px] border border-sky-200 bg-gradient-to-r from-sky-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(59,130,246,0.25)] text-sm text-slate-950">
-      <div class="flex items-start gap-4">
-        <span class="material-symbols-outlined text-sky-600 text-lg">favorite</span>
-        <div>
-          <p class="font-semibold">Added to wishlist</p>
-          <p>{{ wishlistMessage }}</p>
-        </div>
-      </div>
-    </div>
-    <div *ngIf="wishlistError" class="rounded-[28px] border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(244,63,94,0.25)] text-sm text-rose-950">
-      <div class="flex items-start gap-4">
-        <span class="material-symbols-outlined text-rose-600 text-lg">error</span>
-        <div>
-          <p class="font-semibold">Wishlist update failed</p>
-          <p>{{ wishlistError }}</p>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <div class="max-w-7xl mx-auto px-8 pb-24">
-    <div *ngIf="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
-      <article *ngFor="let _ of loadingSkeletons" class="rounded-xl border border-slate-200 overflow-hidden animate-pulse">
-        <div class="aspect-[4/5] bg-slate-200"></div>
-        <div class="p-4 space-y-3">
-          <div class="h-4 bg-slate-200 rounded"></div>
-          <div class="h-4 w-2/3 bg-slate-200 rounded"></div>
-          <div class="h-9 bg-slate-200 rounded"></div>
-        </div>
+    <div *ngIf="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
+      <article *ngFor="let _ of loadingSkeletons" class="animate-pulse">
+        <div class="aspect-[4/5] bg-slate-200 rounded-2xl mb-4"></div>
+        <div class="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
       </article>
     </div>
-    <div
-      *ngIf="!loading"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
-    >
+
+    <div *ngIf="!loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
       <article
         *ngFor="let p of products"
-        class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
+        class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer flex flex-col"
         (click)="goToProduct(p.id, $event)"
       >
-        <div
-          class="relative aspect-[4/5] bg-surface-container overflow-hidden"
-        >
+        <div class="relative aspect-[4/5] bg-slate-100 overflow-hidden">
           <img
             *ngIf="pictureSrcFor(p) as src"
             class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             [src]="src"
             [alt]="p.name"
-            (error)="onProductImageError(p)"
           />
-          <div
-            *ngIf="!pictureSrcFor(p)"
-            class="w-full h-full flex items-center justify-center text-on-surface-variant text-sm"
-          >
-            No image
-          </div>
-          <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
-            <span
-              class="bg-secondary-container/90 backdrop-blur-md text-on-secondary-container text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-sm"
-            >
-              {{ p.stockQuantity > 0 ? 'In Stock' : 'Out of stock' }}
+          <div class="absolute top-4 left-4">
+            <span class="bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm">
+              {{ p.stockQuantity > 0 ? 'In Stock' : 'Out of Stock' }}
             </span>
           </div>
-
           <button
             type="button"
-            class="absolute top-4 right-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-800 shadow-sm transition hover:border-primary hover:bg-primary hover:text-on-primary"
-            title="Add to wishlist"
-            aria-label="Add to wishlist"
+            class="absolute top-4 right-4 h-10 w-10 flex items-center justify-center rounded-full bg-white shadow-md text-slate-600 hover:text-rose-500 transition-colors"
             (click)="addToWishlist(p, $event)"
-            [disabled]="wishlistLoading[p.id]"
           >
             <span class="material-symbols-outlined">favorite</span>
           </button>
         </div>
-        <div class="flex flex-col gap-3 p-4">
-          <div class="flex justify-between items-start gap-4">
-            <div>
-              <h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">
-                {{ p.name }}
-              </h3>
-            </div>
-            <span class="font-headline font-bold text-lg text-on-surface shrink-0">{{ p.price | usdPrice }}</span>
+
+        <div class="p-5 flex flex-col flex-grow">
+          <div class="flex justify-between items-start mb-2">
+            <h3 class="font-headline font-bold text-on-surface line-clamp-1">{{ p.name }}</h3>
+            <span class="font-bold text-primary">{{ p.price | usdPrice }}</span>
           </div>
-          <div class="min-h-[1.25rem]" (click)="$event.stopPropagation()">
+
+          <div class="flex items-center gap-1 mb-4 h-5" (click)="$event.stopPropagation()">
             <ng-container *ngIf="productRatings[p.id] as vm">
-              <p *ngIf="vm.status === 'loading'" class="text-xs text-on-surface-variant">…</p>
-              <p *ngIf="vm.status === 'loaded' && vm.noReviews" class="text-xs text-on-surface-variant">
-                No Reviews Yet
-              </p>
-              <div
-                *ngIf="vm.status === 'loaded' && !vm.noReviews"
-                class="flex items-center gap-1 text-amber-500"
-                [attr.aria-label]="'Rating ' + (vm.average ?? 0) + ' out of 5'"
-              >
-                <span *ngFor="let s of vm.stars" class="inline-flex leading-none">
-                  <ng-container [ngSwitch]="s.kind">
-                    <span *ngSwitchCase="'full'" class="text-base">★</span>
-                    <span *ngSwitchCase="'empty'" class="text-base text-on-surface-variant/40">☆</span>
-                    <span *ngSwitchCase="'half'" class="star-half" aria-hidden="true">
-                      <span class="star-half__fill">★</span><span class="star-half__track">☆</span>
-                    </span>
-                  </ng-container>
+              <div *ngIf="vm.status === 'loaded' && !vm.noReviews" class="flex items-center text-amber-500">
+                <span *ngFor="let s of vm.stars" class="text-sm">
+                   <ng-container [ngSwitch]="s.kind">
+                      <span *ngSwitchCase="'full'">★</span>
+                      <span *ngSwitchCase="'empty'" class="text-slate-300">★</span>
+                      <span *ngSwitchCase="'half'" class="relative inline-block text-slate-300">
+                        ★<span class="absolute top-0 left-0 w-1/2 overflow-hidden text-amber-500">★</span>
+                      </span>
+                   </ng-container>
                 </span>
-                <span *ngIf="vm.average != null" class="text-xs text-on-surface-variant ml-1 tabular-nums">
-                  {{ vm.average | number : '1.1-1' }}
-                </span>
+                <span class="text-xs text-slate-400 ml-1">({{ vm.average }})</span>
               </div>
+              <p *ngIf="vm.status === 'loaded' && vm.noReviews" class="text-[10px] text-slate-400 uppercase tracking-tighter">No reviews</p>
             </ng-container>
-          <div class="text-xs text-slate-500">
-            Status: {{ p.stockQuantity > 0 ? 'Available' : 'Unavailable' }}
           </div>
-          <button
-            type="button"
-            class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-2"
-            (click)="addToCart(p, $event)"
-          >
-            Add to Cart
-          </button>
+
+          <div class="mt-auto">
+            <button
+              type="button"
+              class="w-full bg-slate-900 text-white py-3 rounded-xl font-semibold text-sm hover:bg-primary transition-colors flex items-center justify-center gap-2"
+              (click)="addToCart(p, $event)"
+            >
+              Add to Cart
+            </button>
+          </div>
         </div>
       </article>
     </div>
-    <div *ngIf="!loading && products.length === 0" class="text-sm text-slate-500">
-      No products found. Try adjusting your filters.
+
+    <div *ngIf="!loading && products.length === 0" class="py-20 text-center">
+      <p class="text-slate-500">No products found. Try adjusting your filters.</p>
     </div>
   </div>
 
-  <div
-    *ngIf="filterOpen"
-    class="fixed inset-0 z-[60] flex justify-end bg-black/40"
-    (click)="closeFilters()"
-  >
-    <div
-      class="h-full w-full max-w-md bg-surface-container-lowest shadow-2xl flex flex-col border-l border-outline-variant/20"
-      (click)="$event.stopPropagation()"
-    >
-      <div class="flex items-center justify-between px-6 py-4 border-b border-outline-variant/20">
-        <h2 class="font-headline text-lg font-bold text-on-surface">Filters</h2>
-        <button
-          type="button"
-          class="p-2 rounded-full hover:bg-surface-container-low text-on-surface"
-          (click)="closeFilters()"
-          aria-label="Close filters"
-        >
-          <span class="material-symbols-outlined text-xl">close</span>
-        </button>
-      </div>
-      <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6">
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Name (contains)</label>
-          <input
-            type="text"
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            placeholder="Product name"
-            [(ngModel)]="draftName"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Description (contains)</label>
-          <input
-            type="text"
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            placeholder="Description text"
-            [(ngModel)]="draftDescription"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Price range</label>
-          <div class="flex gap-3 items-center">
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-              placeholder="Min"
-              [(ngModel)]="draftMinPrice"
-            />
-            <span class="text-on-surface-variant text-sm">—</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-              placeholder="Max"
-              [(ngModel)]="draftMaxPrice"
-            />
-          </div>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Min stock (≥)</label>
-          <input
-            type="number"
-            min="0"
-            step="1"
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            placeholder="Stock quantity"
-            [(ngModel)]="draftStockQuantity"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Category name (contains)</label>
-          <select
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            [(ngModel)]="draftCategoryName"
-          >
-            <option value="">All categories</option>
-            <option *ngFor="let c of categories" [value]="c.name">{{ c.name }}</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Created from</label>
-          <input
-            type="date"
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            [(ngModel)]="draftCreatedFrom"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Created to</label>
-          <input
-            type="date"
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            [(ngModel)]="draftCreatedTo"
-          />
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Sort by</label>
-          <select
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            [(ngModel)]="draftSortBy"
-          >
-            <option value="">Default (id)</option>
-            <option value="price">Price</option>
-            <option value="name">Name</option>
-            <option value="date">Date</option>
-            <option value="stockquantity">Stock quantity</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-sm font-semibold text-on-surface mb-2">Sort order</label>
-          <select
-            class="w-full border border-outline-variant/30 rounded-lg px-3 py-2 text-sm bg-surface-container-lowest"
-            [(ngModel)]="draftSortOrder"
-          >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-          </select>
-        </div>
-      </div>
-      <div class="p-6 border-t border-outline-variant/20 flex flex-col gap-3">
-        <button
-          type="button"
-          class="w-full bg-primary text-on-primary font-label text-sm font-semibold py-3 rounded-lg hover:opacity-90 transition-opacity"
-          (click)="applyFilters()"
-        >
-          Apply
-        </button>
-        <button
-          type="button"
-          class="w-full border border-outline-variant/30 text-on-surface font-label text-sm font-semibold py-3 rounded-lg hover:bg-surface-container-low transition-colors"
-          (click)="resetFilters()"
-        >
-          Clear all
-        </button>
-      </div>
-    </div>
-  </div>
-</main>
+  </main>
