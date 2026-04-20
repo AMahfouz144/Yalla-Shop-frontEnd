@@ -31,6 +31,14 @@ export class NavbarComponent {
     return this.authService.hasRole('seller');
   }
 
+  get isAdmin(): boolean {
+    return this.authService.hasRole('admin');
+  }
+
+  get dashboardRoute(): string {
+    return this.authService.getDashboardRouteByRole();
+  }
+
   logout(): void {
     this.authService.Logout();
     this.router.navigate(['/auth/login']);

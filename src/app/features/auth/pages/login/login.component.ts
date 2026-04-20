@@ -47,16 +47,25 @@ export class LoginComponent {
         this.isSubmitting = false;
         if (res.isSuccess) {
           const loginData = res?.data;
-          const role = typeof loginData?.role === 'string' ? loginData.role : '';
+          const decodedRole = this.authService.getRoleFromToken(loginData?.token || '');
+          const role = typeof decodedRole === 'string' && decodedRole
+            ? decodedRole
+            : (typeof loginData?.role === 'string' ? loginData.role : '');
 
           this.authService.setSession(loginData);
-
-          const fallbackRoute = this.authService.getDashboardRouteByRole(role || null);
+          const normalizedRole = role.toLowerCase();
+          const fallbackRoute =
+            normalizedRole === 'admin'
+              ? '/admin/dashboard'
+              : normalizedRole === 'seller'
+                ? '/seller'
+                : '/products';
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
           const canUseReturnUrl =
             !!returnUrl &&
             !returnUrl.startsWith('/auth') &&
-            (role.toLowerCase() === 'admin' || !returnUrl.startsWith('/admin'));
+            (normalizedRole === 'admin' || !returnUrl.startsWith('/admin')) &&
+            (normalizedRole === 'seller' || !returnUrl.startsWith('/seller'));
 
           this.router.navigateByUrl(canUseReturnUrl ? returnUrl : fallbackRoute);
         } else {

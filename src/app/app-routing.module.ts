@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { adminMatchGuard } from './core/guards/admin.guard';
-import { sellerMatchGuard } from './core/guards/seller.guard';
+import { roleMatchGuard } from './core/guards/role.guard';
+import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 
 const routes: Routes = [
   // Default redirect
@@ -21,17 +21,23 @@ const routes: Routes = [
   // Admin area
   {
     path: 'admin',
-    canMatch: [adminMatchGuard],
+    canMatch: [roleMatchGuard],
+    data: { roles: ['Admin'] },
     loadChildren: () =>
       import('./features/admin/admin.module').then(m => m.AdminModule)
   },
 
   {
     path: 'seller',
-    canMatch: [sellerMatchGuard],
+    canMatch: [roleMatchGuard],
+    data: { roles: ['Seller'] },
     loadChildren: () =>
       import('./features/seller/seller.module').then(m => m.SellerModule)
   },
+  // {
+  //   path: 'unauthorized',
+  //   component: UnauthorizedComponent
+  // },
   {
     path: 'marketing',
     redirectTo: 'dashboard/marketing/overview',

@@ -114,6 +114,60 @@ export class AuthService {
     return currentRole?.toLowerCase() === role.toLowerCase()
   }
 
+  getRole (): string | null {
+    return this.getCurrentRole()
+  }
+
+  decodeTokenPayload (token: string): Record<string, unknown> | null {
+    if (!token) {
+      return null
+    }
+
+    try {
+      const parts = token.split('.')
+      if (parts.length < 2) {
+        return null
+      }
+
+      let payload = parts[1].replace(/-/g, '+').replace(/_/g, '/')
+      while (payload.length % 4 !== 0) {
+        payload += '='
+      }
+
+      return JSON.parse(atob(payload)) as Record<string, unknown>
+    } catch {
+      return null
+    }
+  }
+
+  getRoleFromToken (token: string): string | null {
+    const payload = this.decodeTokenPayload(token)
+    if (!payload) {
+      return null
+    }
+
+    const candidateKeys = [
+      'role',
+      'Role',
+      'roles',
+      'Roles',
+      'http://schemas.microsoft.com/ws/2008/06/identity/claims/role',
+      'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role'
+    ]
+
+    for (const key of candidateKeys) {
+      const value = payload[key]
+      if (typeof value === 'string' && value.trim()) {
+        return value.trim()
+      }
+      if (Array.isArray(value) && typeof value[0] === 'string') {
+        return value[0].trim()
+      }
+    }
+
+    return null
+  }
+
   getDashboardRouteByRole (role: string | null = this.getCurrentRole()): string {
     console.log('Determining dashboard route for role:', role)
     switch (role?.toLowerCase()) {

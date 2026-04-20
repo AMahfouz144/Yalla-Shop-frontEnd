@@ -37,6 +37,29 @@
         <span class="material-symbols-outlined text-sm">tune</span>
         Filter
       </button>
+      <button
+        type="button"
+        class="flex items-center gap-2 text-on-surface font-label text-sm font-medium px-4 py-2 rounded border border-outline-variant/20 hover:bg-surface-container-low transition-colors"
+        (click)="resetFilters()"
+      >
+        <span class="material-symbols-outlined text-sm">restart_alt</span>
+        Reset Filters
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="activeFilters.length" class="max-w-7xl mx-auto px-8 mb-5">
+    <div class="flex flex-wrap gap-2">
+      <button
+        *ngFor="let filter of activeFilters"
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-700 hover:bg-slate-200 transition-colors"
+        (click)="removeActiveFilter(filter.key)"
+        [title]="'Remove ' + filter.label"
+      >
+        {{ filter.label }}
+        <span class="material-symbols-outlined text-sm">close</span>
+      </button>
     </div>
   </div>
 
@@ -45,18 +68,27 @@
   <p *ngIf="cartError" class="max-w-7xl mx-auto px-8 text-error text-sm mb-2">{{ cartError }}</p>
 
   <div class="max-w-7xl mx-auto px-8 pb-24">
-    <div *ngIf="loading" class="text-on-surface-variant text-sm">Loading…</div>
+    <div *ngIf="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
+      <article *ngFor="let _ of loadingSkeletons" class="rounded-xl border border-slate-200 overflow-hidden animate-pulse">
+        <div class="aspect-[4/5] bg-slate-200"></div>
+        <div class="p-4 space-y-3">
+          <div class="h-4 bg-slate-200 rounded"></div>
+          <div class="h-4 w-2/3 bg-slate-200 rounded"></div>
+          <div class="h-9 bg-slate-200 rounded"></div>
+        </div>
+      </article>
+    </div>
     <div
       *ngIf="!loading"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16"
     >
       <article
         *ngFor="let p of products"
-        class="flex flex-col gap-4 group cursor-pointer"
+        class="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 group cursor-pointer"
         (click)="goToProduct(p.id, $event)"
       >
         <div
-          class="relative aspect-[4/5] bg-surface-container rounded-xl overflow-hidden shadow-sm transition-all duration-500 group-hover:shadow-[0_32px_64px_-4px_rgba(44,47,49,0.06)]"
+          class="relative aspect-[4/5] bg-surface-container overflow-hidden"
         >
           <img
             *ngIf="pictureSrcFor(p) as src"
@@ -79,7 +111,7 @@
             </span>
           </div>
         </div>
-        <div class="flex flex-col gap-3 px-1 mt-1">
+        <div class="flex flex-col gap-3 p-4">
           <div class="flex justify-between items-start gap-4">
             <div>
               <h3 class="font-headline text-lg font-semibold tracking-tight text-on-surface leading-snug">
@@ -88,15 +120,21 @@
             </div>
             <span class="font-headline font-bold text-lg text-on-surface shrink-0">{{ p.price | usdPrice }}</span>
           </div>
+          <div class="text-xs text-slate-500">
+            Status: {{ p.stockQuantity > 0 ? 'Available' : 'Unavailable' }}
+          </div>
           <button
             type="button"
-            class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2"
+            class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 mt-2"
             (click)="addToCart(p, $event)"
           >
             Add to Cart
           </button>
         </div>
       </article>
+    </div>
+    <div *ngIf="!loading && products.length === 0" class="text-sm text-slate-500">
+      No products found. Try adjusting your filters.
     </div>
   </div>
 
