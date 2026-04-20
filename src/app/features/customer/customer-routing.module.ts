@@ -7,7 +7,7 @@ import { ProfileComponent } from './pages/profile/profile.component';
 import { DashboardComponent } from '../admin/pages/dashboard/dashboard.component';
 
 const routes: Routes = [
-  { path: 'home', component: DashboardComponent },
+  { path: 'home', component: HomeComponent },
   { path: 'cart', component: CartComponent },
   { path: 'orders', component: OrderHistoryComponent },
   { path: 'profile', component: ProfileComponent }
