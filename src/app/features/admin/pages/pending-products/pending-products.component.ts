@@ -3,6 +3,7 @@ import { finalize } from 'rxjs';
 import { AdminProduct } from '../../models/admin.models';
 import { AdminDashboardService } from '../../services/admin-dashboard.service';
 import { AdminToastService } from '../../services/admin-toast.service';
+import { ProductStatus } from './product.enum';
 
 @Component({
   selector: 'app-pending-products',
@@ -50,7 +51,7 @@ export class PendingProductsComponent implements OnInit {
     return product.id;
   }
 
-  private updateStatus(product: AdminProduct, status: 1 | 2, successMessage: string): void {
+  private updateStatus(product: AdminProduct, status: ProductStatus, successMessage: string): void {
     this.processingId = product.id;
     this.adminDashboardService
       .updateProductStatus(product.id, status)

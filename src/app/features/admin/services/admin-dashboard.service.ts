@@ -10,6 +10,7 @@ import {
   AdminProductStatusCode,
   AdminSeller
 } from '../models/admin.models';
+import { ProductStatus } from '../pages/pending-products/product.enum';
 
 @Injectable({
   providedIn: 'root'
@@ -79,7 +80,8 @@ export class AdminDashboardService {
       );
   }
 
-  updateProductStatus(productId: string, status: AdminProductStatusCode): Observable<boolean> {
+  updateProductStatus(productId: string, status: ProductStatus): Observable<boolean> {
+    console.log(`Updating product ${productId} to status ${status}`);
     return this.http
       .put<ResponseModel<boolean>>(`${this.adminApiUrl}/product/${productId}/status/${status}`, {})
       .pipe(
