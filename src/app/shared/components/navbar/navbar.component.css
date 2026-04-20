@@ -1,0 +1,73 @@
+:host {
+  display: block;
+}
+
+.nav-link {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #475569;
+  border-radius: 0.5rem;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.nav-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 0.5rem;
+  background: #0f172a;
+  color: #fff;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.25rem;
+  width: 2.25rem;
+  border-radius: 0.5rem;
+  color: #334155;
+  transition: background-color 0.2s ease;
+}
+
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 0.375rem 0.625rem;
+  transition: background-color 0.2s ease;
+}
+
+.avatar {
+  height: 1.75rem;
+  width: 1.75rem;
+  border-radius: 999px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-link:hover,
+.icon-button:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.nav-pill:hover {
+  background: #334155;
+}
+
+.user-pill:hover {
+  background: #f8fafc;
+}

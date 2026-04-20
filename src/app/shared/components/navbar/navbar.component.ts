@@ -8,8 +8,12 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-  
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(private authService: AuthService, private router: Router) { }
+
+  get isCustomer(): boolean {
+    return this.authService.isAuthenticated() && this.authService.hasRole('Customer');
+  }
 
   get isLoggedIn(): boolean {
     if (typeof localStorage === 'undefined') {
@@ -25,6 +29,18 @@ export class NavbarComponent {
     }
 
     return localStorage.getItem('fullName') || 'User';
+  }
+
+  get isSeller(): boolean {
+    return this.authService.hasRole('seller');
+  }
+
+  get isAdmin(): boolean {
+    return this.authService.hasRole('admin');
+  }
+
+  get dashboardRoute(): string {
+    return this.authService.getDashboardRouteByRole();
   }
 
   logout(): void {

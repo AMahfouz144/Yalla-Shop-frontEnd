@@ -1,14 +1,49 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { finalize, of } from 'rxjs';
+import { forkJoin, finalize, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ResponseModel } from '../../../../core/Interfaces/response-model';
 import { Category } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
+import { AddProductToWhislist } from '../../../../core/models/add-product-to-whislist';
 import { formatHttpError } from '../../../../core/utils/http-error.util';
 import { productPictureSrc } from '../../../../core/utils/product-image.util';
 import { Product, ProductFilterParams } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 import { CartService } from '../../../../core/services/cart.service';
+import { ReviewsService } from '../../../../core/services/reviews.service';
+import { WishlistServiceService } from '../../../../core/services/wishlist-service.service';
+import { AuthService } from '../../../../core/services/auth.service';
+
+/** API message when the product has no reviews (average rating endpoint). */
+const NO_REVIEWS_MESSAGE = 'No Reviews';
+
+type StarKind = 'full' | 'half' | 'empty';
+
+function clampRating(r: number): number {
+  if (!Number.isFinite(r)) {
+    return 0;
+  }
+  return Math.max(0, Math.min(5, r));
+}
+
+/** Five star slots; supports half-stars (e.g. 3.5 → three full, one half, one empty). */
+function getStars(rating: number): { kind: StarKind }[] {
+  const halfStepsTotal = Math.round(clampRating(rating) * 2);
+  const stars: { kind: StarKind }[] = [];
+  for (let i = 0; i < 5; i++) {
+    const slotStart = i * 2;
+    const remaining = halfStepsTotal - slotStart;
+    if (remaining >= 2) {
+      stars.push({ kind: 'full' });
+    } else if (remaining === 1) {
+      stars.push({ kind: 'half' });
+    } else {
+      stars.push({ kind: 'empty' });
+    }
+  }
+  return stars;
+}
 
 @Component({
   selector: 'app-product-catalog',
@@ -24,6 +59,9 @@ export class ProductCatalogComponent implements OnInit {
   error: string | null = null;
   cartMessage: string | null = null;
   cartError: string | null = null;
+  wishlistMessage: string | null = null;
+  wishlistError: string | null = null;
+  wishlistLoading: Record<number, boolean> = {};
 
   filterOpen = false;
 
@@ -50,12 +88,27 @@ export class ProductCatalogComponent implements OnInit {
   appliedCreatedTo = '';
   appliedSortBy = '';
   appliedSortOrder: 'asc' | 'desc' = 'asc';
+  readonly loadingSkeletons = Array.from({ length: 8 });
+
+  /** Per-product rating for catalog cards (precomputed stars for template). */
+  productRatings: Record<
+    number,
+    {
+      status: 'loading' | 'loaded';
+      noReviews: boolean;
+      average: number | null;
+      stars: { kind: StarKind }[];
+    }
+  > = {};
 
   constructor(
     private readonly router: Router,
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
     private readonly cartService: CartService,
+    private readonly reviewsService: ReviewsService,
+    private readonly wishlistService: WishlistServiceService,
+    private readonly authService: AuthService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
@@ -148,6 +201,90 @@ export class ProductCatalogComponent implements OnInit {
     this.loadProducts();
   }
 
+  get activeFilters(): Array<{ key: string; label: string }> {
+    const filters: Array<{ key: string; label: string }> = [];
+
+    if (this.appliedName) {
+      filters.push({ key: 'name', label: `Name: ${this.appliedName}` });
+    }
+    if (this.appliedDescription) {
+      filters.push({ key: 'description', label: `Description: ${this.appliedDescription}` });
+    }
+    if (this.appliedMinPrice != null) {
+      filters.push({ key: 'minPrice', label: `Min price: ${this.appliedMinPrice}` });
+    }
+    if (this.appliedMaxPrice != null) {
+      filters.push({ key: 'maxPrice', label: `Max price: ${this.appliedMaxPrice}` });
+    }
+    if (this.appliedStockQuantity != null) {
+      filters.push({ key: 'stockQuantity', label: `Min stock: ${this.appliedStockQuantity}` });
+    }
+    if (this.appliedCategoryName) {
+      filters.push({ key: 'categoryName', label: `Category: ${this.appliedCategoryName}` });
+    }
+    if (this.appliedCreatedFrom) {
+      filters.push({ key: 'createdFrom', label: `From: ${this.appliedCreatedFrom}` });
+    }
+    if (this.appliedCreatedTo) {
+      filters.push({ key: 'createdTo', label: `To: ${this.appliedCreatedTo}` });
+    }
+    if (this.appliedSortBy) {
+      filters.push({
+        key: 'sort',
+        label: `Sort: ${this.appliedSortBy} (${this.appliedSortOrder})`
+      });
+    }
+
+    return filters;
+  }
+
+  removeActiveFilter(key: string): void {
+    switch (key) {
+      case 'name':
+        this.appliedName = '';
+        this.draftName = '';
+        break;
+      case 'description':
+        this.appliedDescription = '';
+        this.draftDescription = '';
+        break;
+      case 'minPrice':
+        this.appliedMinPrice = null;
+        this.draftMinPrice = null;
+        break;
+      case 'maxPrice':
+        this.appliedMaxPrice = null;
+        this.draftMaxPrice = null;
+        break;
+      case 'stockQuantity':
+        this.appliedStockQuantity = null;
+        this.draftStockQuantity = null;
+        break;
+      case 'categoryName':
+        this.appliedCategoryName = '';
+        this.draftCategoryName = '';
+        break;
+      case 'createdFrom':
+        this.appliedCreatedFrom = '';
+        this.draftCreatedFrom = '';
+        break;
+      case 'createdTo':
+        this.appliedCreatedTo = '';
+        this.draftCreatedTo = '';
+        break;
+      case 'sort':
+        this.appliedSortBy = '';
+        this.appliedSortOrder = 'asc';
+        this.draftSortBy = '';
+        this.draftSortOrder = 'asc';
+        break;
+      default:
+        break;
+    }
+
+    this.loadProducts();
+  }
+
   private buildFilterParams(): ProductFilterParams {
     const p: ProductFilterParams = {};
     if (this.appliedName) {
@@ -191,9 +328,61 @@ export class ProductCatalogComponent implements OnInit {
         next: rows => {
           this.imageLoadFailed = {};
           this.products = rows;
+          this.loadProductRatings(rows);
         },
         error: err => (this.error = formatHttpError(err, 'Could not load products'))
       });
+  }
+
+  private loadProductRatings(products: Product[]): void {
+    const ids = products.map(p => p.id);
+    const loading: typeof this.productRatings = {};
+    for (const id of ids) {
+      loading[id] = { status: 'loading', noReviews: false, average: null, stars: [] };
+    }
+    this.productRatings = loading;
+
+    if (ids.length === 0) {
+      return;
+    }
+
+    forkJoin(
+      ids.map(id =>
+        this.reviewsService.getProductRating(id).pipe(
+          catchError(() =>
+            of({
+              isSuccess: false,
+              message: '',
+              data: 0
+            } as ResponseModel<number>)
+          )
+        )
+      )
+    ).subscribe(responses => {
+      const next: typeof this.productRatings = { ...this.productRatings };
+      responses.forEach((res, index) => {
+        const id = ids[index];
+        const msg = (res.message ?? '').trim();
+        if (msg === NO_REVIEWS_MESSAGE) {
+          next[id] = {
+            status: 'loaded',
+            noReviews: true,
+            average: null,
+            stars: []
+          };
+          return;
+        }
+        const avg = clampRating(Number(res.data));
+        next[id] = {
+          status: 'loaded',
+          noReviews: false,
+          average: avg,
+          stars: getStars(avg)
+        };
+      });
+      this.productRatings = next;
+      this.cdr.markForCheck();
+    });
   }
 
   goToProduct(id: number, event: MouseEvent): void {
@@ -210,6 +399,47 @@ export class ProductCatalogComponent implements OnInit {
     this.cartService.addItem(p.id, 1).subscribe({
       next: () => (this.cartMessage = `Added “${p.name}” to cart`),
       error: err => (this.cartError = formatHttpError(err, 'Could not add to cart'))
+    });
+  }
+
+  addToWishlist(product: Product, event: Event): void {
+    event.stopPropagation();
+    this.wishlistMessage = null;
+    this.wishlistError = null;
+
+    if (!this.authService.isAuthenticated()) {
+      this.wishlistError = 'Please log in to add items to your wishlist.';
+      return;
+    }
+
+    const user = this.authService.getSessionUser();
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+
+    if (!user || !token) {
+      this.wishlistError = 'Unable to add item to wishlist. Please log in again.';
+      return;
+    }
+
+    this.wishlistLoading = { ...this.wishlistLoading, [product.id]: true };
+
+    const request: AddProductToWhislist = {
+      userId: user.userId,
+      productId: product.id
+    };
+
+    this.wishlistService.addToWishlist(token, request).subscribe({
+      next: result => {
+        this.wishlistLoading = { ...this.wishlistLoading, [product.id]: false };
+        if (result.isSuccess) {
+          this.wishlistMessage = result.message || `Added “${product.name}” to wishlist.`;
+          return;
+        }
+        this.wishlistError = result.message || 'Could not add item to wishlist.';
+      },
+      error: err => {
+        this.wishlistLoading = { ...this.wishlistLoading, [product.id]: false };
+        this.wishlistError = formatHttpError(err, 'Could not add item to wishlist');
+      }
     });
   }
 }

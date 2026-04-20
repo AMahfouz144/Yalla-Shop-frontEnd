@@ -28,6 +28,10 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
+    if (this.isSubmitting) {
+      return;
+    }
+
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -42,14 +46,26 @@ export class LoginComponent {
       next: (res) => {
         this.isSubmitting = false;
         if (res.isSuccess) {
-          this.authService.setSession(res.data);
+          const loginData = res?.data;
+          const decodedRole = this.authService.getRoleFromToken(loginData?.token || '');
+          const role = typeof decodedRole === 'string' && decodedRole
+            ? decodedRole
+            : (typeof loginData?.role === 'string' ? loginData.role : '');
 
-          const fallbackRoute = this.authService.getDashboardRouteByRole(res.data.role);
+          this.authService.setSession(loginData);
+          const normalizedRole = role.toLowerCase();
+          const fallbackRoute =
+            normalizedRole === 'admin'
+              ? '/admin/dashboard'
+              : normalizedRole === 'seller'
+                ? '/seller'
+                : '/products';
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
           const canUseReturnUrl =
             !!returnUrl &&
             !returnUrl.startsWith('/auth') &&
-            (res.data.role.toLowerCase() === 'admin' || !returnUrl.startsWith('/admin'));
+            (normalizedRole === 'admin' || !returnUrl.startsWith('/admin')) &&
+            (normalizedRole === 'seller' || !returnUrl.startsWith('/seller'));
 
           this.router.navigateByUrl(canUseReturnUrl ? returnUrl : fallbackRoute);
         } else {

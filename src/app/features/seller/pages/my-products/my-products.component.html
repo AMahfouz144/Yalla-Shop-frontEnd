@@ -1,1 +1,179 @@
-<p>my-products works!</p>
+<section class="mx-auto max-w-6xl space-y-6 animate-fadeIn">
+  <!-- Header -->
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h2 class="font-headline text-3xl font-extrabold tracking-tight text-slate-950">My Products</h2>
+      <p class="mt-1 text-sm text-slate-600">Manage your product catalog — view, edit, or remove listings.</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <button
+        *ngIf="canCreateCategory"
+        type="button"
+        class="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm transition-all hover:bg-slate-50"
+        (click)="openCategoryModal()"
+      >
+        <span class="material-symbols-outlined text-[20px]">playlist_add</span>
+        Add Category
+      </button>
+      <button type="button"
+        class="inline-flex items-center justify-center gap-2 rounded-2xl bg-teal-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-teal-800 hover:shadow-md active:scale-95"
+        (click)="add()">
+        <span class="material-symbols-outlined text-[20px]">add</span>
+        Add product
+      </button>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div *ngIf="products.length > 0" class="relative">
+    <span
+      class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-slate-400">search</span>
+    <input type="text"
+      class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition-all focus:border-teal-400 focus:ring-2 focus:ring-teal-400/20"
+      placeholder="Search products by name or description…" [(ngModel)]="searchTerm" />
+  </div>
+
+  <p *ngIf="error" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+    <span class="material-symbols-outlined text-[16px] align-text-bottom mr-1">error</span>
+    {{ error }}
+  </p>
+
+  <!-- Loading skeleton -->
+  <div *ngIf="loading" class="space-y-4">
+    <div *ngFor="let i of [1,2,3]" class="h-24 rounded-2xl bg-slate-100 animate-pulse"></div>
+  </div>
+
+  <div *ngIf="!loading && sellerId == null"
+    class="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+    <span class="material-symbols-outlined text-[16px] align-text-bottom mr-1">info</span>
+    Set your seller id in the sidebar, then refresh this page.
+  </div>
+
+  <div *ngIf="!loading && sellerId != null && products.length === 0"
+    class="rounded-2xl border border-slate-200 bg-white px-4 py-14 text-center">
+    <span class="material-symbols-outlined text-5xl text-slate-300">inventory_2</span>
+    <p class="mt-3 text-sm text-slate-600">No products yet. Use "Add product" to create your first listing.</p>
+  </div>
+
+  <!-- Product Cards -->
+  <div *ngIf="!loading && filteredProducts.length" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <article *ngFor="let p of filteredProducts"
+      class="group relative flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 overflow-hidden">
+      <!-- Image -->
+      <div class="relative h-48 bg-slate-100 overflow-hidden cursor-pointer" (click)="viewDetails(p)">
+        <img *ngIf="getImageUrl(p.picture)" [src]="getImageUrl(p.picture)" [alt]="p.name"
+          class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+        <div *ngIf="!getImageUrl(p.picture)" class="flex h-full items-center justify-center">
+          <span class="material-symbols-outlined text-4xl text-slate-300">image</span>
+        </div>
+        <span
+          class="absolute top-3 right-3 inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold shadow-sm backdrop-blur-sm"
+          [ngClass]="{
+            'bg-amber-100/90 text-amber-900': p.status === 0,
+            'bg-emerald-100/90 text-emerald-800': p.status === 1,
+            'bg-rose-100/90 text-rose-800': p.status === 2
+          }">
+          {{ statusLabel(p.status) }}
+        </span>
+      </div>
+
+      <!-- Content -->
+      <div class="flex flex-1 flex-col p-4">
+        <h3 class="font-semibold text-slate-900 truncate cursor-pointer hover:text-teal-700 transition-colors"
+          (click)="viewDetails(p)">
+          {{ p.name }}
+        </h3>
+        <p class="mt-1 text-sm text-slate-500 line-clamp-2 flex-1">{{ p.description || 'No description provided' }}</p>
+
+        <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3">
+          <div>
+            <span class="text-lg font-bold text-teal-800">{{ p.price | currency:'USD' }}</span>
+            <span class="ml-2 text-xs text-slate-500">{{ p.stockQuantity }} in stock</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-3 flex gap-2">
+          <button type="button"
+            class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium text-slate-700 transition-all hover:bg-slate-100 hover:border-slate-300"
+            (click)="viewDetails(p)">
+            <span class="material-symbols-outlined text-[16px]">visibility</span>
+            View
+          </button>
+          <button type="button"
+            class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50 px-3 py-2 text-sm font-medium text-teal-800 transition-all hover:bg-teal-100 hover:border-teal-300"
+            (click)="edit(p)">
+            <span class="material-symbols-outlined text-[16px]">edit</span>
+            Edit
+          </button>
+          <button type="button"
+            class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-medium text-rose-700 transition-all hover:bg-rose-100 hover:border-rose-300 disabled:opacity-50"
+            [disabled]="deletingId === p.id" (click)="deleteProduct(p)">
+            <span class="material-symbols-outlined text-[16px]">delete</span>
+            {{ deletingId === p.id ? '…' : '' }}
+          </button>
+        </div>
+      </div>
+    </article>
+  </div>
+
+  <!-- No search results -->
+  <div *ngIf="!loading && products.length > 0 && filteredProducts.length === 0"
+    class="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-600">
+    No products match "{{ searchTerm }}".
+  </div>
+</section>
+
+<div
+  *ngIf="showCategoryModal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4"
+  (click)="closeCategoryModal()"
+>
+  <div
+    class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-xl"
+    (click)="$event.stopPropagation()"
+  >
+    <h3 class="text-lg font-bold text-slate-900">Create Category</h3>
+    <p class="mt-1 text-sm text-slate-600">Add a new category for your products.</p>
+
+    <div class="mt-4">
+      <label class="mb-1 block text-sm font-semibold text-slate-800" for="category-name">Category Name</label>
+      <input
+        id="category-name"
+        type="text"
+        [(ngModel)]="categoryName"
+        [disabled]="creatingCategory"
+        class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-teal-600/30"
+        placeholder="e.g. Home Decor"
+      />
+      <p *ngIf="categoryError" class="mt-2 text-xs text-rose-600">{{ categoryError }}</p>
+    </div>
+
+    <div class="mt-5 flex items-center justify-end gap-2">
+      <button
+        type="button"
+        class="rounded-xl border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        [disabled]="creatingCategory"
+        (click)="closeCategoryModal()"
+      >
+        Cancel
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center gap-2 rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 disabled:opacity-50"
+        [disabled]="creatingCategory || categoryName.trim().length < 3"
+        (click)="submitCategory()"
+      >
+        <span *ngIf="creatingCategory" class="material-symbols-outlined animate-spin text-[16px]">progress_activity</span>
+        {{ creatingCategory ? 'Creating...' : 'Submit' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="categoryToast"
+  class="fixed top-5 right-5 z-[60] rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-lg"
+>
+  {{ categoryToast }}
+</div>

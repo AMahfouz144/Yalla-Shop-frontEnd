@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config/api-base';
 import { Category } from '../models/category.model';
 
-const ROOT = `${API_BASE_URL}/Category`;
+const ROOT = `https://yallashop-api.runasp.net/api/Category`;
 
 @Injectable({ providedIn: 'root' })
 export class CategoryService {
@@ -17,5 +17,9 @@ export class CategoryService {
 
   getById(id: number): Observable<Category> {
     return this.http.get<Category>(`${ROOT}/${id}`);
+  }
+
+  createCategory(name: string): Observable<Category> {
+    return this.http.post<Category>(ROOT, { name });
   }
 }

@@ -1,0 +1,86 @@
+<section class="space-y-6">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div>
+      <p class="text-sm uppercase tracking-[0.2em] text-slate-400">Customers</p>
+      <h2 class="mt-2 font-headline text-3xl font-extrabold tracking-tight text-slate-950">Customers management</h2>
+    </div>
+    <button
+      type="button"
+      class="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      (click)="loadCustomers(true)"
+    >
+      Reload
+    </button>
+  </div>
+
+  <div class="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200">
+    <div class="mb-4">
+      <input
+        type="text"
+        class="w-full rounded-xl border border-slate-300 px-4 py-2 text-sm outline-none focus:border-slate-500"
+        placeholder="Search by full name or username (email)"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+
+    <div *ngIf="isLoading" class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-slate-500">Loading customers...</div>
+    <div *ngIf="!isLoading && errorMessage" class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">{{ errorMessage }}</div>
+
+    <div *ngIf="!isLoading && !errorMessage" class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead>
+          <tr class="text-left text-sm font-semibold text-slate-500">
+            <th class="pb-4 pr-4">Full Name</th>
+            <th class="pb-4 pr-4">Username (Email)</th>
+            <th class="pb-4 pr-4">Status</th>
+            <th class="pb-4 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr *ngFor="let customer of pagedCustomers; trackBy: trackByUserId">
+            <td class="py-4 pr-4 font-semibold text-slate-950">{{ customer.fullName }}</td>
+            <td class="py-4 pr-4 text-sm text-slate-600">{{ customer.userName }}</td>
+            <td class="py-4 pr-4">
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold"
+                [ngClass]="customer.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+              >
+                {{ customer.statusLabel }}
+              </span>
+            </td>
+            <td class="py-4 text-right">
+              <button
+                type="button"
+                class="rounded-xl px-4 py-2 text-sm font-semibold transition"
+                [ngClass]="customer.isActive ? 'bg-rose-50 text-rose-700 hover:bg-rose-100' : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'"
+                [disabled]="processingUserId === customer.id"
+                (click)="toggleStatus(customer)"
+              >
+                {{ processingUserId === customer.id ? 'Saving...' : (customer.isActive ? 'Deactivate' : 'Activate') }}
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="pagedCustomers.length === 0" class="py-8 text-center text-sm text-slate-500">No customers found.</div>
+    </div>
+
+    <div class="mt-5 flex items-center justify-between" *ngIf="!isLoading && !errorMessage">
+      <p class="text-sm text-slate-500">Page {{ currentPage }} of {{ totalPages }}</p>
+      <div class="flex gap-2">
+        <button type="button" class="rounded-lg border border-slate-200 px-3 py-1 text-sm" [disabled]="currentPage === 1" (click)="changePage(-1)">
+          Prev
+        </button>
+        <button
+          type="button"
+          class="rounded-lg border border-slate-200 px-3 py-1 text-sm"
+          [disabled]="currentPage === totalPages"
+          (click)="changePage(1)"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,23 @@
+.star-half {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 1;
+}
+
+.star-half__track {
+  position: absolute;
+  inset: 0;
+  color: rgb(148 163 184 / 45%);
+  pointer-events: none;
+}
+
+.star-half__fill {
+  position: absolute;
+  inset: 0;
+  width: 50%;
+  overflow: hidden;
+  color: rgb(245 158 11);
+  pointer-events: none;
+}

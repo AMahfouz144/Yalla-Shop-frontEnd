@@ -11,13 +11,17 @@ import { HeroBannerComponent } from './components/hero-banner/hero-banner.compon
 import { CategoriesGridComponent } from './components/categories-grid/categories-grid.component';
 import { NewArrivalsComponent } from './components/new-arrivals/new-arrivals.component';
 import { NewsletterComponent } from './components/newsletter/newsletter.component';
-
+import { ChangePasswordComponent } from '../Profile/Pages/ChangePassword/change-password/change-password.component';
+import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/update-email.component';import { WishlistComponent } from './pages/wishlist/wishlist.component';
 @NgModule({
   declarations: [
     HomeComponent,
     CartComponent,
     OrderHistoryComponent,
     ProfileComponent,
+    UpdateEmailComponent,
+    ChangePasswordComponent,
+    WishlistComponent,
     HeroBannerComponent,
     CategoriesGridComponent,
     NewArrivalsComponent,
