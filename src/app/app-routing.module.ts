@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { adminMatchGuard } from './core/guards/admin.guard';
+import { sellerMatchGuard } from './core/guards/seller.guard';
 
 const routes: Routes = [
   // Default redirect
@@ -25,11 +26,11 @@ const routes: Routes = [
       import('./features/admin/admin.module').then(m => m.AdminModule)
   },
 
-  // Legacy role entry points route into the unified dashboard module
   {
     path: 'seller',
-    redirectTo: 'dashboard/seller/overview',
-    pathMatch: 'full'
+    canMatch: [sellerMatchGuard],
+    loadChildren: () =>
+      import('./features/seller/seller.module').then(m => m.SellerModule)
   },
   {
     path: 'marketing',

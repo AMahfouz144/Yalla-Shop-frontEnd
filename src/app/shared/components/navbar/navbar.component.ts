@@ -8,8 +8,8 @@ import { AuthService } from '../../../core/services/auth.service';
   styleUrl: './navbar.component.css'
 })
 export class NavbarComponent {
-  
-  constructor(private authService: AuthService, private router: Router) {}
+
+  constructor(private authService: AuthService, private router: Router) { }
 
   get isLoggedIn(): boolean {
     if (typeof localStorage === 'undefined') {
@@ -25,6 +25,10 @@ export class NavbarComponent {
     }
 
     return localStorage.getItem('fullName') || 'User';
+  }
+
+  get isSeller(): boolean {
+    return this.authService.hasRole('seller');
   }
 
   logout(): void {

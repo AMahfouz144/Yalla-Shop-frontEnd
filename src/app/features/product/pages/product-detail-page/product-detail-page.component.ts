@@ -103,11 +103,7 @@ export class ProductDetailPageComponent implements OnInit {
   private buildExtraRows(p: Product): { key: string; value: string }[] {
     const rows: { key: string; value: string }[] = [
       { key: 'Stock', value: String(p.stockQuantity) },
-      { key: 'Status', value: ProductStatus[p.status] ?? String(p.status) },
-      { key: 'Category ID', value: String(p.categoryId) },
-      { key: 'Seller ID', value: p.sellerId == null ? '—' : String(p.sellerId) },
-      { key: 'Created', value: p.createdAt || '—' },
-      { key: 'Product ID', value: String(p.id) }
+      { key: 'Listed on', value: p.createdAt || '—' }
     ];
     return rows;
   }
