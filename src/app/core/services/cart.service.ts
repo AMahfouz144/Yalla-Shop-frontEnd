@@ -8,8 +8,8 @@ import { PromoRequest, PromoResult } from '../models/promo.model';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly url = `${API_BASE_URL}/Cart/items`;
-  private readonly promoUrl = `${API_BASE_URL}/promo/apply`;
+  private readonly url = `https://yallashop-api.runasp.net/api/Cart/items`;
+  private readonly promoUrl = `https://yallashop-api.runasp.net/api/promo/apply`;
 
   constructor(private readonly http: HttpClient) {}
 

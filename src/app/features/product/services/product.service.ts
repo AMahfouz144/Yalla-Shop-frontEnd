@@ -8,13 +8,14 @@ import { mapProductDto, mapProductList } from '../utils/product-dto.mapper';
 @Injectable({ providedIn: 'root' })
 export class ProductService {
   constructor(private readonly http: HttpClient) {}
+  private readonly apiUrl = `https://yallashop-api.runasp.net/api/Product`;
 
   getAll(): Observable<Product[]> {
-    return this.http.get<unknown>(PRODUCT_API_ROOT).pipe(map(body => mapProductList(body)));
+    return this.http.get<unknown>(this.apiUrl).pipe(map(body => mapProductList(body)));
   }
 
   getById(id: number): Observable<Product> {
-    return this.http.get<unknown>(`${PRODUCT_API_ROOT}/${id}`).pipe(map(body => mapProductDto(body as Record<string, unknown>)));
+    return this.http.get<unknown>(`${this.apiUrl}/${id}`).pipe(map(body => mapProductDto(body as Record<string, unknown>)));
   }
 
   /**
@@ -40,7 +41,7 @@ export class ProductService {
       }
     }
     return this.http
-      .get<unknown>(`${PRODUCT_API_ROOT}/filter`, { params: httpParams })
+      .get<unknown>(`${this.apiUrl}/filter`, { params: httpParams })
       .pipe(map(body => mapProductList(body)));
   }
 

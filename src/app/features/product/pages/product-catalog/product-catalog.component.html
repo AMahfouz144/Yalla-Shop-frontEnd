@@ -63,9 +63,44 @@
     </div>
   </div>
 
-  <p *ngIf="error" class="max-w-7xl mx-auto px-8 text-error text-sm mb-4">{{ error }}</p>
-  <p *ngIf="cartMessage" class="max-w-7xl mx-auto px-8 text-primary text-sm mb-2">{{ cartMessage }}</p>
-  <p *ngIf="cartError" class="max-w-7xl mx-auto px-8 text-error text-sm mb-2">{{ cartError }}</p>
+  <div class="max-w-7xl mx-auto px-8 pb-4 space-y-3">
+    <div *ngIf="cartMessage" class="rounded-[28px] border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(16,185,129,0.35)] text-sm text-emerald-950">
+      <div class="flex items-start gap-4">
+        <span class="material-symbols-outlined text-emerald-600 text-lg">check_circle</span>
+        <div>
+          <p class="font-semibold">Item added to cart</p>
+          <p>{{ cartMessage }}</p>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="cartError" class="rounded-[28px] border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(244,63,94,0.25)] text-sm text-rose-950">
+      <div class="flex items-start gap-4">
+        <span class="material-symbols-outlined text-rose-600 text-lg">error</span>
+        <div>
+          <p class="font-semibold">Unable to add to cart</p>
+          <p>{{ cartError }}</p>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="wishlistMessage" class="rounded-[28px] border border-sky-200 bg-gradient-to-r from-sky-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(59,130,246,0.25)] text-sm text-slate-950">
+      <div class="flex items-start gap-4">
+        <span class="material-symbols-outlined text-sky-600 text-lg">favorite</span>
+        <div>
+          <p class="font-semibold">Added to wishlist</p>
+          <p>{{ wishlistMessage }}</p>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="wishlistError" class="rounded-[28px] border border-rose-200 bg-gradient-to-r from-rose-50 to-white p-5 shadow-[0_24px_80px_-30px_rgba(244,63,94,0.25)] text-sm text-rose-950">
+      <div class="flex items-start gap-4">
+        <span class="material-symbols-outlined text-rose-600 text-lg">error</span>
+        <div>
+          <p class="font-semibold">Wishlist update failed</p>
+          <p>{{ wishlistError }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="max-w-7xl mx-auto px-8 pb-24">
     <div *ngIf="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-16">
@@ -110,6 +145,17 @@
               {{ p.stockQuantity > 0 ? 'In Stock' : 'Out of stock' }}
             </span>
           </div>
+
+          <button
+            type="button"
+            class="absolute top-4 right-4 inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white/95 text-slate-800 shadow-sm transition hover:border-primary hover:bg-primary hover:text-on-primary"
+            title="Add to wishlist"
+            aria-label="Add to wishlist"
+            (click)="addToWishlist(p, $event)"
+            [disabled]="wishlistLoading[p.id]"
+          >
+            <span class="material-symbols-outlined">favorite</span>
+          </button>
         </div>
         <div class="flex flex-col gap-3 p-4">
           <div class="flex justify-between items-start gap-4">
@@ -120,6 +166,31 @@
             </div>
             <span class="font-headline font-bold text-lg text-on-surface shrink-0">{{ p.price | usdPrice }}</span>
           </div>
+          <div class="min-h-[1.25rem]" (click)="$event.stopPropagation()">
+            <ng-container *ngIf="productRatings[p.id] as vm">
+              <p *ngIf="vm.status === 'loading'" class="text-xs text-on-surface-variant">…</p>
+              <p *ngIf="vm.status === 'loaded' && vm.noReviews" class="text-xs text-on-surface-variant">
+                No Reviews Yet
+              </p>
+              <div
+                *ngIf="vm.status === 'loaded' && !vm.noReviews"
+                class="flex items-center gap-1 text-amber-500"
+                [attr.aria-label]="'Rating ' + (vm.average ?? 0) + ' out of 5'"
+              >
+                <span *ngFor="let s of vm.stars" class="inline-flex leading-none">
+                  <ng-container [ngSwitch]="s.kind">
+                    <span *ngSwitchCase="'full'" class="text-base">★</span>
+                    <span *ngSwitchCase="'empty'" class="text-base text-on-surface-variant/40">☆</span>
+                    <span *ngSwitchCase="'half'" class="star-half" aria-hidden="true">
+                      <span class="star-half__fill">★</span><span class="star-half__track">☆</span>
+                    </span>
+                  </ng-container>
+                </span>
+                <span *ngIf="vm.average != null" class="text-xs text-on-surface-variant ml-1 tabular-nums">
+                  {{ vm.average | number : '1.1-1' }}
+                </span>
+              </div>
+            </ng-container>
           <div class="text-xs text-slate-500">
             Status: {{ p.stockQuantity > 0 ? 'Available' : 'Unavailable' }}
           </div>
