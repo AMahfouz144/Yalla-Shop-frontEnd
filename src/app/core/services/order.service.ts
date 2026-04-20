@@ -13,7 +13,7 @@ import { OrderResponseDto } from '../models/order-history.model';
 export class OrderService {
 
   /** Maps to the [Route("api/orders")] controller on the backend. */
-  private readonly apiUrl = `${API_BASE_URL}/orders`;
+  private readonly apiUrl = `https://yallashop-api.runasp.net/api/orders`;
 
   constructor(private http: HttpClient) { }
 

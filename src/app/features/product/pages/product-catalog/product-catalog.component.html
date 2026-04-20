@@ -88,6 +88,32 @@
             </div>
             <span class="font-headline font-bold text-lg text-on-surface shrink-0">{{ p.price | usdPrice }}</span>
           </div>
+          <div class="min-h-[1.25rem]" (click)="$event.stopPropagation()">
+            <ng-container *ngIf="productRatings[p.id] as vm">
+              <p *ngIf="vm.status === 'loading'" class="text-xs text-on-surface-variant">…</p>
+              <p *ngIf="vm.status === 'loaded' && vm.noReviews" class="text-xs text-on-surface-variant">
+                No Reviews Yet
+              </p>
+              <div
+                *ngIf="vm.status === 'loaded' && !vm.noReviews"
+                class="flex items-center gap-1 text-amber-500"
+                [attr.aria-label]="'Rating ' + (vm.average ?? 0) + ' out of 5'"
+              >
+                <span *ngFor="let s of vm.stars" class="inline-flex leading-none">
+                  <ng-container [ngSwitch]="s.kind">
+                    <span *ngSwitchCase="'full'" class="text-base">★</span>
+                    <span *ngSwitchCase="'empty'" class="text-base text-on-surface-variant/40">☆</span>
+                    <span *ngSwitchCase="'half'" class="star-half" aria-hidden="true">
+                      <span class="star-half__fill">★</span><span class="star-half__track">☆</span>
+                    </span>
+                  </ng-container>
+                </span>
+                <span *ngIf="vm.average != null" class="text-xs text-on-surface-variant ml-1 tabular-nums">
+                  {{ vm.average | number : '1.1-1' }}
+                </span>
+              </div>
+            </ng-container>
+          </div>
           <button
             type="button"
             class="w-full bg-surface-container text-on-surface hover:bg-gradient-to-br hover:from-primary hover:to-primary-container hover:text-on-primary font-label text-sm font-semibold py-3 px-4 rounded transition-all duration-300 flex items-center justify-center gap-2 mt-2"

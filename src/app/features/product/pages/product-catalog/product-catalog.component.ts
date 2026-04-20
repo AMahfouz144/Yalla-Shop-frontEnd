@@ -1,14 +1,46 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { finalize, of } from 'rxjs';
+import { forkJoin, finalize, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { ResponseModel } from '../../../../core/Interfaces/response-model';
 import { Category } from '../../../../core/models/category.model';
 import { CategoryService } from '../../../../core/services/category.service';
 import { CartService } from '../../../../core/services/cart.service';
+import { ReviewsService } from '../../../../core/services/reviews.service';
 import { formatHttpError } from '../../../../core/utils/http-error.util';
 import { productPictureSrc } from '../../../../core/utils/product-image.util';
 import { Product, ProductFilterParams } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
+
+/** API message when the product has no reviews (average rating endpoint). */
+const NO_REVIEWS_MESSAGE = 'No Reviews';
+
+type StarKind = 'full' | 'half' | 'empty';
+
+function clampRating(r: number): number {
+  if (!Number.isFinite(r)) {
+    return 0;
+  }
+  return Math.max(0, Math.min(5, r));
+}
+
+/** Five star slots; supports half-stars (e.g. 3.5 → three full, one half, one empty). */
+function getStars(rating: number): { kind: StarKind }[] {
+  const halfStepsTotal = Math.round(clampRating(rating) * 2);
+  const stars: { kind: StarKind }[] = [];
+  for (let i = 0; i < 5; i++) {
+    const slotStart = i * 2;
+    const remaining = halfStepsTotal - slotStart;
+    if (remaining >= 2) {
+      stars.push({ kind: 'full' });
+    } else if (remaining === 1) {
+      stars.push({ kind: 'half' });
+    } else {
+      stars.push({ kind: 'empty' });
+    }
+  }
+  return stars;
+}
 
 @Component({
   selector: 'app-product-catalog',
@@ -51,11 +83,23 @@ export class ProductCatalogComponent implements OnInit {
   appliedSortBy = '';
   appliedSortOrder: 'asc' | 'desc' = 'asc';
 
+  /** Per-product rating for catalog cards (precomputed stars for template). */
+  productRatings: Record<
+    number,
+    {
+      status: 'loading' | 'loaded';
+      noReviews: boolean;
+      average: number | null;
+      stars: { kind: StarKind }[];
+    }
+  > = {};
+
   constructor(
     private readonly router: Router,
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
     private readonly cartService: CartService,
+    private readonly reviewsService: ReviewsService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
@@ -191,9 +235,61 @@ export class ProductCatalogComponent implements OnInit {
         next: rows => {
           this.imageLoadFailed = {};
           this.products = rows;
+          this.loadProductRatings(rows);
         },
         error: err => (this.error = formatHttpError(err, 'Could not load products'))
       });
+  }
+
+  private loadProductRatings(products: Product[]): void {
+    const ids = products.map(p => p.id);
+    const loading: typeof this.productRatings = {};
+    for (const id of ids) {
+      loading[id] = { status: 'loading', noReviews: false, average: null, stars: [] };
+    }
+    this.productRatings = loading;
+
+    if (ids.length === 0) {
+      return;
+    }
+
+    forkJoin(
+      ids.map(id =>
+        this.reviewsService.getProductRating(id).pipe(
+          catchError(() =>
+            of({
+              isSuccess: false,
+              message: '',
+              data: 0
+            } as ResponseModel<number>)
+          )
+        )
+      )
+    ).subscribe(responses => {
+      const next: typeof this.productRatings = { ...this.productRatings };
+      responses.forEach((res, index) => {
+        const id = ids[index];
+        const msg = (res.message ?? '').trim();
+        if (msg === NO_REVIEWS_MESSAGE) {
+          next[id] = {
+            status: 'loaded',
+            noReviews: true,
+            average: null,
+            stars: []
+          };
+          return;
+        }
+        const avg = clampRating(Number(res.data));
+        next[id] = {
+          status: 'loaded',
+          noReviews: false,
+          average: avg,
+          stars: getStars(avg)
+        };
+      });
+      this.productRatings = next;
+      this.cdr.markForCheck();
+    });
   }
 
   goToProduct(id: number, event: MouseEvent): void {

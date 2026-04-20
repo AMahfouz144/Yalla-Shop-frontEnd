@@ -9,10 +9,7 @@ import { UpdateEmailComponent } from '../Profile/Pages/UpdateEmail/update-email/
 
 const routes: Routes = [
   { path: 'home',           component: HomeComponent },
-  { path: 'products',       component: ProductListComponent },
-  { path: 'products/:id',   component: ProductDetailsComponent },
   { path: 'cart',            component: CartComponent },
-  { path: 'checkout',       component: CheckoutComponent },
   { path: 'orders',         component: OrderHistoryComponent },
   { path: 'profile',        component: ProfileComponent },
   { path: 'update-email',   component: UpdateEmailComponent },
